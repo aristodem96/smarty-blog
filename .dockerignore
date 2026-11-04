@@ -1,0 +1,7 @@
+# The image needs only docker/php/entrypoint.sh; the code is bind-mounted at runtime.
+.git
+.idea
+vendor
+node_modules
+var
+.env

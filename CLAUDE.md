@@ -12,11 +12,13 @@
 
 ## Стек і жорсткі обмеження
 - PHP 8.1+ (без фреймворків: ні Laravel, ні Symfony, ні Slim, ні їхніх компонентів).
+  Код — **лише з можливостями 8.1** (Composer `platform.php = 8.1.0`), Docker запускає 8.3 (ADR-004).
 - Smarty — єдиний шаблонізатор.
 - MySQL 8 через **PDO** (без ORM, без query builder-ів).
 - Composer — лише для Smarty та автозавантаження PSR-4.
 - SCSS → CSS через `sass` (npm), JS — мінімальний, без фреймворків.
-- Docker: PHP-FPM + Nginx + MySQL.
+- Docker: PHP-FPM 8.3 + Nginx + MySQL 8.4. Entrypoint PHP виконується на кожному
+  старті — усе, що в нього додаємо (міграції, сидер), має бути ідемпотентним (ADR-005).
 - **Жодних нових бібліотек (composer/npm) без явного дозволу автора.**
 
 ## Структура папок
@@ -44,10 +46,14 @@
 - Коментарі — тільки там, де «чому» неочевидне з коду.
 
 ## Команди
-> Заповнюються по ходу етапів 1–4, 8. Поки що — план:
+Сайт: http://localhost:8080 · MySQL з хоста: `127.0.0.1:3307` (blog / secret).
 ```bash
-docker compose up -d --build          # підняти оточення
-docker compose exec php composer install
+docker compose up -d --build          # підняти все; entrypoint сам робить composer install
+docker compose logs -f php            # логи PHP / entrypoint
+docker compose exec php sh            # shell у контейнері PHP
+docker compose exec php composer validate --strict
+docker compose down                   # зупинити (додати -v — стерти БД)
+# далі по етапах:
 docker compose exec php php bin/migrate.php   # міграції (етап 2)
 docker compose exec php php bin/seed.php      # сидер (етап 4)
 npm run build:css                     # SCSS → CSS (етап 8)
