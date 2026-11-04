@@ -87,7 +87,7 @@ HTTP request
   → public/index.php        — bootstrap: autoload, config, error handler, View, lazy PDO,
                               routes as closures that build their controller on match
   → Request::fromGlobals()  — method, path, query, cookies (the only place reading superglobals)
-  → Router::dispatch()      — GET/HEAD + path regex; {slug} → named argument
+  → Router::dispatch()      — GET/HEAD + path regex; {slug} → named argument; trailing slash → 301
   → Controller              — validates query input, calls repositories, returns a Response
   → Repository              — SQL through PDO (prepared statements)
   → View::render()          — Smarty template with auto-escaping
@@ -112,3 +112,5 @@ Errors (caught in index.php):
 | GET    | `/category/{slug}`  | Category (`?sort=date\|views`, `?page=N`)         |
 | GET    | `/article/{slug}`   | Article                                           |
 | —      | anything else       | 404                                               |
+
+A matching path with a trailing slash (`/category/php/`) gets a 301 to the canonical URL without it.

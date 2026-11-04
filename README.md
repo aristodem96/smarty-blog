@@ -92,7 +92,7 @@ files in `database/migrations/`, tracked in a `migrations` table.
 
 Every decision is recorded with alternatives and rationale in [docs/DECISIONS.md](docs/DECISIONS.md). In short:
 
-- **No framework, but a familiar shape** — front controller, a ~50-line router, controllers returning a
+- **No framework, but a familiar shape** — front controller, a ~60-line router, controllers returning a
   `Response`, repositories with all SQL, readonly entities, Smarty templates. Dependencies are wired by
   hand in `index.php`; controllers and the DB connection are created lazily for the matched route only
   (ADR-002, ADR-007).
@@ -116,6 +116,8 @@ Every decision is recorded with alternatives and rationale in [docs/DECISIONS.md
   `ORDER BY` from an enum only, `LIMIT/OFFSET` bound as integers.
 - XSS: Smarty `escape_html` is enabled globally — every `{$var}` is escaped; `nofilter` is never used.
 - Input: route slugs must match `[a-z0-9-]+`, `?page` and the view cookie accept positive integers only.
+- URLs with a trailing slash get a 301 to the canonical URL — only when the result matches a route, so
+  the redirect cannot be abused as an open redirect.
 - Runtime: production `php.ini` (no error display, no `X-Powered-By`), Nginx executes only `index.php`,
   hides its version and sends `X-Content-Type-Options`, `X-Frame-Options` and `Referrer-Policy`.
 

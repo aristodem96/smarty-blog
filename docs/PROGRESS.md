@@ -16,8 +16,8 @@ Status: ✅ done · 🔄 in progress · ⏳ next
 | 9  | English docs and site, final review, README                 | ✅ |
 
 ## Current state
-- All stages are done. Stage 9 consists of five commits (see docs/AI_USAGE.md): 9a docs in English,
-  9b review fixes (ADR-013), 9c site UI and content in English, 9d README and the clean-clone fix
-  (ADR-005 update), 9e submission check (repository URL, exact task text).
+- All stages are done. Stage 9 commits (see docs/AI_USAGE.md): 9a docs in English, 9b review fixes
+  (ADR-013), 9c site UI and content in English, 9d README and the clean-clone fix (ADR-005 update),
+  9e submission check (repository URL, exact task text), 9f full re-check fixes (trailing-slash 301).
 - The repository is public: https://github.com/aristodem96/smarty-blog
 - Remaining (author): send the link with the AI usage statement.

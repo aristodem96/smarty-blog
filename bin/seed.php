@@ -33,7 +33,7 @@ if (isset($options['if-empty']) && !$seeder->isEmpty()) {
 $stats = $seeder->run($articleCount);
 
 printf(
-    "Seeded: %d categories, %d articles, %d article-category links.\n",
+    "Seeded categories: %d, articles: %d, article-category links: %d.\n",
     $stats['categories'],
     $stats['articles'],
     $stats['links'],

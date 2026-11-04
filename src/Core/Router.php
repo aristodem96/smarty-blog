@@ -37,6 +37,15 @@ final class Router
 
         foreach ($this->routes as $route) {
             if (preg_match($route['pattern'], $path, $matches) === 1) {
+                // Canonical URLs have no trailing slash: "/category/php/" -> 301 to "/category/php".
+                // Redirecting only to a matched route (never to raw input) rules out open redirects
+                // such as "/\evil.com/", which browsers would treat as "//evil.com".
+                if ($path !== $request->path) {
+                    $query = $request->queryString !== '' ? '?' . $request->queryString : '';
+
+                    return new Response('', 301, ['Location' => $path . $query]);
+                }
+
                 // Named groups become named arguments: {slug} -> show(Request $request, string $slug).
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
 

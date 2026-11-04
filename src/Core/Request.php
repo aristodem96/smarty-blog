@@ -9,24 +9,29 @@ final class Request
     /**
      * @param array<string, mixed> $query
      * @param array<string, mixed> $cookies
+     * @param string $queryString  raw query without "?", kept for redirects
      */
     public function __construct(
         public readonly string $method,
         public readonly string $path,
         private readonly array $query,
         private readonly array $cookies = [],
+        public readonly string $queryString = '',
     ) {
     }
 
     public static function fromGlobals(): self
     {
-        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        $path = parse_url($uri, PHP_URL_PATH);
+        $queryString = parse_url($uri, PHP_URL_QUERY);
 
         return new self(
             strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET'),
             is_string($path) && $path !== '' ? $path : '/',
             $_GET,
             $_COOKIE,
+            is_string($queryString) ? $queryString : '',
         );
     }
 

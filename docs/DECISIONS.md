@@ -120,6 +120,9 @@ Decisions are made by the author; the AI assistant only proposes options.
     `APP_DEBUG=1`. Warnings and notices are converted to `ErrorException`.
   - `Request` (readonly) is built from superglobals once; `query()` returns strings only.
   - Dependencies are wired manually with `new` in `index.php`, no DI container.
+  - *Updated in stage 9:* a trailing slash is no longer served as a duplicate page — `/category/php/`
+    gets a 301 to `/category/php` (query string kept). The redirect is issued only when the trimmed path
+    matches a route, never for arbitrary input, so paths like `/\evil.com/` cannot become an open redirect.
   - *Updated in stage 9:* each route is a closure that builds its controller only when the route
     matches, and PDO is opened lazily on first use — unknown URLs return 404 without connecting to
     MySQL (and still return 404 while the database is down).
