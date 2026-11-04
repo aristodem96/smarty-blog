@@ -14,7 +14,7 @@ A small but complete blog with categories and articles, built with **plain PHP 8
 Requirements: Docker with Compose v2. Nothing else (no PHP, Composer or Node on the host).
 
 ```bash
-git clone <repository-url> smarty-blog
+git clone https://github.com/aristodem96/smarty-blog.git
 cd smarty-blog
 docker compose up -d --build
 ```
