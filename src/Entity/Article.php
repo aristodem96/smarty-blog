@@ -36,4 +36,28 @@ final class Article
             new DateTimeImmutable($row['published_at']),
         );
     }
+
+    /**
+     * Content paragraphs (separated by blank lines), rendered one <p> each with auto-escaping.
+     *
+     * @return list<string>
+     */
+    public function paragraphs(): array
+    {
+        return preg_split('/\R\s*\R/', trim($this->content), -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    public function withViews(int $views): self
+    {
+        return new self(
+            $this->id,
+            $this->title,
+            $this->slug,
+            $this->description,
+            $this->content,
+            $this->image,
+            $views,
+            $this->publishedAt,
+        );
+    }
 }

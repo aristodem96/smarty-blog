@@ -37,7 +37,7 @@ try {
 
     $home = new HomeController($view, $categoryRepository);
     $category = new CategoryController($view, $categoryRepository, $articleRepository);
-    $article = new ArticleController($view);
+    $article = new ArticleController($view, $articleRepository, $categoryRepository);
 
     $router = new Router();
     $router->get('/', [$home, 'index']);

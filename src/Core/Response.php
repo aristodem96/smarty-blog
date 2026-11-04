@@ -6,14 +6,20 @@ namespace App\Core;
 
 final class Response
 {
+    private const DEFAULT_HEADERS = ['Content-Type' => 'text/html; charset=utf-8'];
+
+    /** @var array<string, string> */
+    public readonly array $headers;
+
     /**
-     * @param array<string, string> $headers
+     * @param array<string, string> $headers  merged over the defaults
      */
     public function __construct(
         public readonly string $body,
         public readonly int $status = 200,
-        public readonly array $headers = ['Content-Type' => 'text/html; charset=utf-8'],
+        array $headers = [],
     ) {
+        $this->headers = $headers + self::DEFAULT_HEADERS;
     }
 
     public function send(): void

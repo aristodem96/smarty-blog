@@ -15,7 +15,8 @@ smarty-blog/
 │   ├── Controller/         # HomeController, CategoryController, ArticleController
 │   ├── Entity/             # readonly-сутності Category, Article (fromRow з рядка БД)
 │   ├── Repository/         # CategoryRepository, ArticleRepository, ArticleSort (enum) — увесь SQL тут
-│   └── Support/            # Slugger (транслітерація → slug), Pagination (value object)
+│   └── Support/            # Slugger (транслітерація → slug), Pagination (value object),
+│                           #   ViewedArticles (cookie переглянутих статей)
 ├── templates/              # Smarty-шаблони (.tpl): layout, сторінки, partials/, errors/
 ├── config/                 # конфіг застосунку (значення з env-змінних)
 ├── database/
@@ -79,7 +80,7 @@ HTTP-запит
   → Nginx (усе, що не є файлом у public/, віддає на public/index.php)
   → public/index.php        — bootstrap: autoload, конфіг, error handler, View,
                               контролери (через new), реєстрація маршрутів
-  → Request::fromGlobals()  — метод, шлях, query (єдине місце читання $_SERVER/$_GET)
+  → Request::fromGlobals()  — метод, шлях, query, cookies (єдине місце читання суперглобальних)
   → Router::dispatch()      — GET/HEAD + regex шляху; {slug} → іменований аргумент
   → Controller              — валідує query, викликає репозиторій, повертає Response
   → Repository              — SQL через PDO (prepared statements)
@@ -96,6 +97,7 @@ HTTP-запит
 |---|---|---|---|
 | Головна | `CategoryRepository::findWithLatestArticles(3)` | 1 | `ROW_NUMBER()` + `MAX() OVER` у підзапиті над id, повні колонки — лише для `position <= 3` |
 | Категорія | `CategoryRepository::findBySlug`, `ArticleRepository::countByCategory`, `ArticleRepository::findByCategory` | 3 | slug → UNIQUE-індекс; COUNT — лише індекс зв'язки; список — `ORDER BY` з enum `ArticleSort`, `LIMIT/OFFSET` |
+| Стаття | `ArticleRepository::findBySlug`, `incrementViews`*, `findSimilar`; `CategoryRepository::findByArticle` | 3–4 | *UPDATE лише для нового перегляду (cookie); схожі — self-join `article_category` + `COUNT(*)` спільних категорій |
 
 ## 5. Маршрути
 | Метод | Шлях                | Сторінка                                         |

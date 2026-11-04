@@ -33,7 +33,7 @@
   (зміна схеми = новий файл); `database/seeds/` — `BlogSeeder` (`Database\Seeders\`) і дані.
 - `src/Entity/` — readonly-сутності з `fromRow()`; репозиторії повертають сутності, не масиви.
   Дати — `DateTimeImmutable`, у шаблоні `->format()` (не `date_format`: він на `strftime`).
-- `src/Support/` — утиліти (`Slugger`, `Pagination`).
+- `src/Support/` — утиліти (`Slugger`, `Pagination`, `ViewedArticles`).
 - Динамічний `ORDER BY` — лише через enum `ArticleSort::orderBy()`, ніколи з вводу користувача. `public/images/articles/` — SVG статей.
 - `scss/` → `public/assets/css`. `docker/` — оточення. `var/` — кеш Smarty (gitignored).
 - В URL — `slug`, не `id` (ADR-003).
@@ -45,7 +45,8 @@
   користувацьких даних у SQL. Для `ORDER BY` — whitelist дозволених значень.
 - Шаблони: `escape_html` увімкнено глобально — `{$var}` екранується автоматично;
   сирий HTML (`nofilter`) — лише свідомо і з коментарем чому. Сторінки — `{extends file="layout.tpl"}`.
-- Query-параметри — лише через `Request::query()`, не через `$_GET`.
+- Query-параметри і cookies — лише через `Request::query()` / `Request::cookie()`, не через
+  `$_GET` / `$_COOKIE`; заголовки відповіді (`Set-Cookie`) — через `Response`, не `header()`.
 - Невідомий маршрут або відсутній запис → HTTP 404 + шаблон 404.
 - Без «магії»: без `__get`/`__call`, без глобальних змінних, без service locator.
   Залежності — через конструктор, збираються явно в одному місці.

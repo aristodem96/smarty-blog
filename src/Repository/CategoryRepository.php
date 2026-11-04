@@ -24,6 +24,24 @@ final class CategoryRepository
     }
 
     /**
+     * @return list<Category>
+     */
+    public function findByArticle(int $articleId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT c.id, c.name, c.slug, c.description
+             FROM categories c
+             JOIN article_category ac ON ac.category_id = c.id
+             WHERE ac.article_id = :article_id
+             ORDER BY c.name'
+        );
+        $stmt->bindValue('article_id', $articleId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return array_map(Category::fromRow(...), $stmt->fetchAll());
+    }
+
+    /**
      * Categories that have articles, each with its latest $perCategory articles.
      * Categories are ordered by their most recent article. One query, no N+1.
      *
