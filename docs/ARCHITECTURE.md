@@ -13,9 +13,10 @@ smarty-blog/
 │   ├── Core/               # інфраструктура: Router, Request, Response, View (Smarty),
 │   │                       #   Database (PDO), NotFoundException
 │   ├── Controller/         # HomeController, CategoryController, ArticleController
+│   ├── Entity/             # readonly-сутності Category, Article (fromRow з рядка БД)
 │   ├── Repository/         # CategoryRepository, ArticleRepository — увесь SQL тут
 │   └── Support/            # утиліти без стану: Slugger (транслітерація → slug)
-├── templates/              # Smarty-шаблони (.tpl): layout, сторінки, partials/
+├── templates/              # Smarty-шаблони (.tpl): layout, сторінки, partials/, errors/
 ├── config/                 # конфіг застосунку (значення з env-змінних)
 ├── database/
 │   ├── migrations/         # SQL-файли схеми
@@ -90,7 +91,12 @@ HTTP-запит
   інший Throwable    → error_log + Response 500 (errors/500.tpl; деталі лише при APP_DEBUG=1)
 ```
 
-## 4. Маршрути
+## 4. Ключові запити
+| Сторінка | Метод репозиторію | Запитів | Як |
+|---|---|---|---|
+| Головна | `CategoryRepository::findWithLatestArticles(3)` | 1 | `ROW_NUMBER()` + `MAX() OVER` у підзапиті над id, повні колонки — лише для `position <= 3` |
+
+## 5. Маршрути
 | Метод | Шлях                | Сторінка                                         |
 |-------|---------------------|--------------------------------------------------|
 | GET   | `/`                 | Головна                                          |

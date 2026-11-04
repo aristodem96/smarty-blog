@@ -7,11 +7,13 @@ declare(strict_types=1);
 use App\Controller\ArticleController;
 use App\Controller\CategoryController;
 use App\Controller\HomeController;
+use App\Core\Database;
 use App\Core\NotFoundException;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
 use App\Core\View;
+use App\Repository\CategoryRepository;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -28,7 +30,10 @@ set_error_handler(static function (int $severity, string $message, string $file,
 $view = new View(__DIR__ . '/../templates', __DIR__ . '/../var/templates_c');
 
 try {
-    $home = new HomeController($view);
+    $pdo = Database::connect($config['db']);
+    $categoryRepository = new CategoryRepository($pdo);
+
+    $home = new HomeController($view, $categoryRepository);
     $category = new CategoryController($view);
     $article = new ArticleController($view);
 

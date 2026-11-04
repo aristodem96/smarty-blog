@@ -31,6 +31,8 @@
 - `templates/` — Smarty `.tpl`. `config/` — конфіг з env. `bin/` — CLI (migrate, seed).
 - `database/migrations/NNN_*.sql` — одна таблиця/зміна на файл, існуючі файли не редагуємо
   (зміна схеми = новий файл); `database/seeds/` — `BlogSeeder` (`Database\Seeders\`) і дані.
+- `src/Entity/` — readonly-сутності з `fromRow()`; репозиторії повертають сутності, не масиви.
+  Дати — `DateTimeImmutable`, у шаблоні `->format()` (не `date_format`: він на `strftime`).
 - `src/Support/` — утиліти без стану (`Slugger`). `public/images/articles/` — SVG статей.
 - `scss/` → `public/assets/css`. `docker/` — оточення. `var/` — кеш Smarty (gitignored).
 - В URL — `slug`, не `id` (ADR-003).
