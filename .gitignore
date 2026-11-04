@@ -1,0 +1,60 @@
+# ------------------------------------------------------------
+# Dependencies — restored by `composer install` / `npm install`.
+# Lock files (composer.lock, package-lock.json) ARE committed:
+# this is an application, so builds must be reproducible.
+# ------------------------------------------------------------
+/vendor/
+/node_modules/
+
+# ------------------------------------------------------------
+# Runtime: Smarty compiled templates and cache
+# ------------------------------------------------------------
+/var/
+
+# ------------------------------------------------------------
+# Build output — CSS is compiled from /scss
+# ------------------------------------------------------------
+/public/assets/css/
+.sass-cache/
+*.css.map
+
+# ------------------------------------------------------------
+# Environment — real credentials stay local, the template is committed
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ------------------------------------------------------------
+# Docker — local overrides of docker-compose.yml
+# ------------------------------------------------------------
+docker-compose.override.yml
+compose.override.yml
+
+# ------------------------------------------------------------
+# Claude Code — personal settings (shared ones are committed)
+# ------------------------------------------------------------
+/.claude/settings.local.json
+CLAUDE.local.md
+
+# ------------------------------------------------------------
+# Tool caches and logs
+# ------------------------------------------------------------
+.phpunit.result.cache
+.php-cs-fixer.cache
+*.log
+npm-debug.log*
+
+# ------------------------------------------------------------
+# IDE / editors
+# ------------------------------------------------------------
+/.idea/
+/.vscode/
+*.swp
+*~
+
+# ------------------------------------------------------------
+# OS
+# ------------------------------------------------------------
+.DS_Store
+Thumbs.db
