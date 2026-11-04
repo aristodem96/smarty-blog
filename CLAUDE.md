@@ -27,7 +27,8 @@
 - `src/Core/` — Router, Database (PDO), View (Smarty). `src/Controller/` — обробка запитів.
   `src/Repository/` — **увесь SQL тільки тут**. Namespace `App\` → `src/`.
 - `templates/` — Smarty `.tpl`. `config/` — конфіг з env. `bin/` — CLI (migrate, seed).
-- `database/migrations/` — SQL схеми; `database/seeds/` — сидер.
+- `database/migrations/NNN_*.sql` — одна таблиця/зміна на файл, існуючі файли не редагуємо
+  (зміна схеми = новий файл); `database/seeds/` — сидер.
 - `scss/` → `public/assets/css`. `docker/` — оточення. `var/` — кеш Smarty (gitignored).
 - В URL — `slug`, не `id` (ADR-003).
 
@@ -53,8 +54,9 @@ docker compose logs -f php            # логи PHP / entrypoint
 docker compose exec php sh            # shell у контейнері PHP
 docker compose exec php composer validate --strict
 docker compose down                   # зупинити (додати -v — стерти БД)
+docker compose exec php php bin/migrate.php           # нові міграції (також на старті)
+docker compose exec php php bin/migrate.php --fresh   # видалити всі таблиці й перестворити
 # далі по етапах:
-docker compose exec php php bin/migrate.php   # міграції (етап 2)
 docker compose exec php php bin/seed.php      # сидер (етап 4)
 npm run build:css                     # SCSS → CSS (етап 8)
 ```

@@ -5,6 +5,9 @@ set -e
 # No-op when vendor/ already matches composer.lock.
 composer install --no-interaction --prefer-dist --no-progress
 
+# Applies only migrations not yet recorded in the `migrations` table.
+php bin/migrate.php
+
 # Smarty writes compiled templates into var/; PHP-FPM workers run as www-data.
 mkdir -p var
 chown -R www-data:www-data var

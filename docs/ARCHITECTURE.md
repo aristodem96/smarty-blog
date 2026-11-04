@@ -46,23 +46,27 @@ articles
   views         INT UNSIGNED NOT NULL DEFAULT 0
   published_at  DATETIME NOT NULL
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-  updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-  INDEX idx_published_at (published_at)
-  INDEX idx_views (views)
+  INDEX idx_articles_published_at (published_at)
+  INDEX idx_articles_views (views)
 
 article_category
   article_id    INT UNSIGNED  FK → articles.id   ON DELETE CASCADE
   category_id   INT UNSIGNED  FK → categories.id ON DELETE CASCADE
   PRIMARY KEY (article_id, category_id)
-  INDEX idx_category_article (category_id, article_id)
+  INDEX idx_article_category_category (category_id, article_id)
+
+migrations                                     -- службова, веде bin/migrate.php
+  name          VARCHAR(255) PK                -- ім'я застосованого SQL-файлу
+  applied_at    DATETIME
 ```
-Engine InnoDB, charset `utf8mb4`, collation `utf8mb4_unicode_ci`.
+Engine InnoDB, charset `utf8mb4`, collation `utf8mb4_0900_ai_ci`.
+Міграції: `database/migrations/NNN_*.sql`, одна таблиця на файл (ADR-006).
 
 | Індекс | Який запит обслуговує |
 |---|---|
 | `categories.slug`, `articles.slug` UNIQUE | пошук сторінки за URL + гарантія унікальності |
 | `article_category` PK `(article_id, category_id)` | категорії статті → «схожі статті»; захист від дублів |
-| `idx_category_article (category_id, article_id)` | статті категорії → головна, сторінка категорії |
+| `idx_article_category_category (category_id, article_id)` | статті категорії → головна, сторінка категорії |
 | `idx_published_at`, `idx_views` | сортування за датою / переглядами |
 
 ## 3. Потік запиту
