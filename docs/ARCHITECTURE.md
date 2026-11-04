@@ -7,17 +7,19 @@
 smarty-blog/
 ├── public/                 # document root веб-сервера — тільки це доступно ззовні
 │   ├── index.php           # front controller: єдина точка входу всіх HTTP-запитів
-│   └── assets/             # скомпільований CSS, зображення статей
+│   ├── assets/             # скомпільований CSS
+│   └── images/articles/    # SVG-ілюстрації статей (шлях зберігається в articles.image)
 ├── src/                    # PHP-код, namespace App\ (PSR-4)
 │   ├── Core/               # інфраструктура: Router, Request, Response, View (Smarty),
 │   │                       #   Database (PDO), NotFoundException
 │   ├── Controller/         # HomeController, CategoryController, ArticleController
-│   └── Repository/         # CategoryRepository, ArticleRepository — увесь SQL тут
+│   ├── Repository/         # CategoryRepository, ArticleRepository — увесь SQL тут
+│   └── Support/            # утиліти без стану: Slugger (транслітерація → slug)
 ├── templates/              # Smarty-шаблони (.tpl): layout, сторінки, partials/
 ├── config/                 # конфіг застосунку (значення з env-змінних)
 ├── database/
 │   ├── migrations/         # SQL-файли схеми
-│   └── seeds/              # логіка сидера
+│   └── seeds/              # BlogSeeder (namespace Database\Seeders), data/blog.php — вихідні дані
 ├── bin/                    # CLI-скрипти: migrate.php, seed.php
 ├── scss/                   # вихідні стилі → компілюються в public/assets/css
 ├── docker/                 # Dockerfile PHP, конфіг Nginx

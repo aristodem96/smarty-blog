@@ -8,6 +8,9 @@ composer install --no-interaction --prefer-dist --no-progress
 # Applies only migrations not yet recorded in the `migrations` table.
 php bin/migrate.php
 
+# Seeds demo data on the first start only; never touches an already filled database.
+php bin/seed.php --if-empty
+
 # Smarty writes compiled templates into var/; PHP-FPM workers run as www-data.
 mkdir -p var
 chown -R www-data:www-data var

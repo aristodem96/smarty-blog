@@ -30,7 +30,8 @@
   `src/Repository/` — **увесь SQL тільки тут**. Namespace `App\` → `src/`.
 - `templates/` — Smarty `.tpl`. `config/` — конфіг з env. `bin/` — CLI (migrate, seed).
 - `database/migrations/NNN_*.sql` — одна таблиця/зміна на файл, існуючі файли не редагуємо
-  (зміна схеми = новий файл); `database/seeds/` — сидер.
+  (зміна схеми = новий файл); `database/seeds/` — `BlogSeeder` (`Database\Seeders\`) і дані.
+- `src/Support/` — утиліти без стану (`Slugger`). `public/images/articles/` — SVG статей.
 - `scss/` → `public/assets/css`. `docker/` — оточення. `var/` — кеш Smarty (gitignored).
 - В URL — `slug`, не `id` (ADR-003).
 
@@ -60,8 +61,9 @@ docker compose exec php composer validate --strict
 docker compose down                   # зупинити (додати -v — стерти БД)
 docker compose exec php php bin/migrate.php           # нові міграції (також на старті)
 docker compose exec php php bin/migrate.php --fresh   # видалити всі таблиці й перестворити
+docker compose exec php php bin/seed.php              # перестворити демо-дані (80 статей)
+docker compose exec php php bin/seed.php --articles=300
 # далі по етапах:
-docker compose exec php php bin/seed.php      # сидер (етап 4)
 npm run build:css                     # SCSS → CSS (етап 8)
 ```
 
