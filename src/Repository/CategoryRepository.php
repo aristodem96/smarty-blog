@@ -14,6 +14,15 @@ final class CategoryRepository
     {
     }
 
+    public function findBySlug(string $slug): ?Category
+    {
+        $stmt = $this->pdo->prepare('SELECT id, name, slug, description FROM categories WHERE slug = :slug');
+        $stmt->execute(['slug' => $slug]);
+        $row = $stmt->fetch();
+
+        return $row === false ? null : Category::fromRow($row);
+    }
+
     /**
      * Categories that have articles, each with its latest $perCategory articles.
      * Categories are ordered by their most recent article. One query, no N+1.

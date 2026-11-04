@@ -13,6 +13,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
 use App\Core\View;
+use App\Repository\ArticleRepository;
 use App\Repository\CategoryRepository;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -32,9 +33,10 @@ $view = new View(__DIR__ . '/../templates', __DIR__ . '/../var/templates_c');
 try {
     $pdo = Database::connect($config['db']);
     $categoryRepository = new CategoryRepository($pdo);
+    $articleRepository = new ArticleRepository($pdo);
 
     $home = new HomeController($view, $categoryRepository);
-    $category = new CategoryController($view);
+    $category = new CategoryController($view, $categoryRepository, $articleRepository);
     $article = new ArticleController($view);
 
     $router = new Router();

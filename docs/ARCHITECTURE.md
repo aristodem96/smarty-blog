@@ -14,8 +14,8 @@ smarty-blog/
 │   │                       #   Database (PDO), NotFoundException
 │   ├── Controller/         # HomeController, CategoryController, ArticleController
 │   ├── Entity/             # readonly-сутності Category, Article (fromRow з рядка БД)
-│   ├── Repository/         # CategoryRepository, ArticleRepository — увесь SQL тут
-│   └── Support/            # утиліти без стану: Slugger (транслітерація → slug)
+│   ├── Repository/         # CategoryRepository, ArticleRepository, ArticleSort (enum) — увесь SQL тут
+│   └── Support/            # Slugger (транслітерація → slug), Pagination (value object)
 ├── templates/              # Smarty-шаблони (.tpl): layout, сторінки, partials/, errors/
 ├── config/                 # конфіг застосунку (значення з env-змінних)
 ├── database/
@@ -95,6 +95,7 @@ HTTP-запит
 | Сторінка | Метод репозиторію | Запитів | Як |
 |---|---|---|---|
 | Головна | `CategoryRepository::findWithLatestArticles(3)` | 1 | `ROW_NUMBER()` + `MAX() OVER` у підзапиті над id, повні колонки — лише для `position <= 3` |
+| Категорія | `CategoryRepository::findBySlug`, `ArticleRepository::countByCategory`, `ArticleRepository::findByCategory` | 3 | slug → UNIQUE-індекс; COUNT — лише індекс зв'язки; список — `ORDER BY` з enum `ArticleSort`, `LIMIT/OFFSET` |
 
 ## 5. Маршрути
 | Метод | Шлях                | Сторінка                                         |

@@ -33,7 +33,8 @@
   (зміна схеми = новий файл); `database/seeds/` — `BlogSeeder` (`Database\Seeders\`) і дані.
 - `src/Entity/` — readonly-сутності з `fromRow()`; репозиторії повертають сутності, не масиви.
   Дати — `DateTimeImmutable`, у шаблоні `->format()` (не `date_format`: він на `strftime`).
-- `src/Support/` — утиліти без стану (`Slugger`). `public/images/articles/` — SVG статей.
+- `src/Support/` — утиліти (`Slugger`, `Pagination`).
+- Динамічний `ORDER BY` — лише через enum `ArticleSort::orderBy()`, ніколи з вводу користувача. `public/images/articles/` — SVG статей.
 - `scss/` → `public/assets/css`. `docker/` — оточення. `var/` — кеш Smarty (gitignored).
 - В URL — `slug`, не `id` (ADR-003).
 
