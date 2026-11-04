@@ -9,12 +9,12 @@ return [
         [
             'name' => 'PHP',
             'description' => 'The language, its ecosystem and modern practices: from the type system to structuring a project without a framework.',
-            'topics' => ['PDO', 'Composer', 'The PHP 8 type system', 'PHP enums', 'Readonly properties', 'PSR standards'],
+            'topics' => ['PDO', 'Composer', 'PHP 8 type system', 'PHP enums', 'Readonly properties', 'PSR standards'],
         ],
         [
             'name' => 'JavaScript',
             'description' => 'Modern JavaScript in the browser: asynchronous code, modules, the DOM and the network.',
-            'topics' => ['The Fetch API', 'Async/await', 'ES modules', 'Closures', 'The event loop', 'The DOM API'],
+            'topics' => ['Fetch API', 'Async/await', 'ES modules', 'Closures', 'Event loop', 'DOM API'],
         ],
         [
             'name' => 'Databases',
@@ -54,17 +54,19 @@ return [
         'Checklist: %s',
     ],
 
+    // Topics are proper names ("Closures", "PDO"), so templates put them at the start of a sentence
+    // or after a colon to keep the capitalization natural.
     'description_templates' => [
-        'We break down %s: the key ideas, practical examples and the pitfalls developers run into.',
-        'A short, practical overview of %s — what you need to know to use it at work today.',
+        '%s explained: the key ideas, practical examples and the pitfalls developers run into.',
+        '%s — a short, practical overview of what you need to know to use it at work today.',
         '%s by example: from the basic concepts to solutions that hold up in production.',
         '%s without the theory overload: why it matters and how to avoid the usual mistakes.',
     ],
 
     'intro_templates' => [
         '%s often looks simple until it meets a real project. This article collects what helps you not only understand the basics but also apply them with confidence in everyday work.',
-        'A lot has been written about %s, but most of it is either too shallow or too academic. Let us find the middle ground: minimum theory, maximum practice.',
-        'If you have already worked with %s, you know the devil is in the details. Let us walk through the key points step by step.',
+        '%s: plenty has been written about it, but most of it is either too shallow or too academic. Let us find the middle ground — minimum theory, maximum practice.',
+        '%s is all in the details, as anyone who has used it knows. Let us walk through the key points step by step.',
     ],
 
     'paragraphs' => [
@@ -81,8 +83,8 @@ return [
     ],
 
     'outro_templates' => [
-        'To sum up: %s is a tool, not a goal in itself. Use it where it genuinely makes life easier, and do not hesitate to drop it when a simpler solution works better.',
-        'We hope this article helps you work with %s more confidently. The best way to make the knowledge stick is to try it on your own project right away.',
+        '%s is a tool, not a goal in itself. Use it where it genuinely makes life easier, and do not hesitate to drop it when a simpler solution works better.',
+        '%s should now feel a little less mysterious. The best way to make the knowledge stick is to try it on your own project right away.',
         '%s is a much broader topic than a single article can cover, but these principles are enough for a confident start. Practice and careful reading of the documentation will do the rest.',
     ],
 

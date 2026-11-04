@@ -16,6 +16,13 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      # PHP-FPM listens only after the entrypoint (composer install, migrations, seeding) has finished.
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9000"]
+      interval: 2s
+      timeout: 2s
+      retries: 60
+      start_period: 120s
 
   nginx:
     image: nginx:1.30-alpine
@@ -25,9 +32,10 @@ services:
       # Nginx sees only public/ — source code and config are not reachable from the web.
       - ./public:/var/www/html/public:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    # Nginx starts last, so `docker compose up -d` returns only when the site can serve requests.
     depends_on:
       php:
-        condition: service_started
+        condition: service_healthy
       assets:
         condition: service_completed_successfully
 

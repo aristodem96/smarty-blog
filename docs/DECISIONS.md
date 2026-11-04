@@ -84,6 +84,10 @@ Decisions are made by the author; the AI assistant only proposes options.
   defaults allow starting without copying `.env`.
 - **Consequence:** everything added to the entrypoint (migrations in stage 2, seeding in stage 4)
   must be idempotent; automatic seeding runs on an empty database only.
+- *Updated in stage 9:* a clean-clone test showed a 502 right after `docker compose up -d`, because
+  Nginx started before PHP-FPM finished the entrypoint. The `php` service now has a healthcheck
+  (`nc -z 127.0.0.1 9000` — FPM listens only after the entrypoint) and `nginx` waits for
+  `service_healthy`, so `up -d` returns when the site can serve requests.
 
 ---
 
