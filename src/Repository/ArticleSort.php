@@ -25,8 +25,8 @@ enum ArticleSort: string
     public function label(): string
     {
         return match ($this) {
-            self::Date => 'Новіші',
-            self::Views => 'Популярні',
+            self::Date => 'Newest',
+            self::Views => 'Most viewed',
         };
     }
 }

@@ -46,8 +46,8 @@ Layered by type (ADR-002). Details in docs/ARCHITECTURE.md.
 - No magic: no `__get`/`__call`, no globals, no service locator. Constructor injection, wired explicitly.
 - Simplicity over architecture for its own sake: add a layer/class only if it removes real duplication
   or mixed responsibilities. Comments only where the "why" is not obvious from the code.
-- All repository files (docs, README, comments, commits) in professional English. Site content
-  (UI text, seeded articles) stays Ukrainian.
+- Everything in the repository is in professional English: docs, README, comments, commits, the site
+  UI and the seeded content.
 
 ## Commands
 Site: http://localhost:8080 · MySQL from the host: `127.0.0.1:3307` (blog / secret).

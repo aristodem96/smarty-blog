@@ -1,7 +1,7 @@
 {extends file="layout.tpl"}
 
 {block name="content"}
-    <h1 class="page-title">Свіжі статті за категоріями</h1>
+    <h1 class="page-title">Latest articles by category</h1>
 
     {foreach $sections as $section}
         <section class="category-section">
@@ -15,9 +15,9 @@
                 {/foreach}
             </div>
 
-            <a class="button" href="/category/{$section.category->slug}">Усі статті</a>
+            <a class="button" href="/category/{$section.category->slug}">All articles</a>
         </section>
     {foreachelse}
-        <p>Статей поки немає.</p>
+        <p>No articles yet.</p>
     {/foreach}
 {/block}

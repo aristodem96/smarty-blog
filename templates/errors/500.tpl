@@ -1,10 +1,10 @@
 {extends file="layout.tpl"}
 
-{block name="title"}Помилка сервера — Smarty Blog{/block}
+{block name="title"}Server error — Smarty Blog{/block}
 
 {block name="content"}
-    <h1>500 — щось пішло не так</h1>
-    <p>Спробуйте оновити сторінку пізніше.</p>
+    <h1 class="page-title">500 — something went wrong</h1>
+    <p>Please try again later.</p>
     {if $error}
         <pre>{$error}</pre>
     {/if}

@@ -13,8 +13,8 @@
         </h3>
         <p class="article-card__description">{$article->description|truncate:160:'…'}</p>
         <p class="article-card__meta">
-            <time datetime="{$article->publishedAt->format('Y-m-d')}">{$article->publishedAt->format('d.m.Y')}</time>
-            <span>Переглядів: {$article->views}</span>
+            <time datetime="{$article->publishedAt->format('Y-m-d')}">{$article->publishedAt->format('M j, Y')}</time>
+            <span>Views: {$article->views}</span>
         </p>
     </div>
 </article>

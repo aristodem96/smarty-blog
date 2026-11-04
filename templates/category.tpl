@@ -14,8 +14,8 @@
 
     {if $articles}
         {* Switching the sort order starts again from page 1. *}
-        <nav class="sort" aria-label="Сортування статей">
-            <span class="sort__label">Сортувати:</span>
+        <nav class="sort" aria-label="Sort articles">
+            <span class="sort__label">Sort by:</span>
             {foreach $sorts as $option}
                 {if $option === $sort}
                     <span class="sort__option sort__option--active" aria-current="true">{$option->label()}</span>
@@ -26,7 +26,7 @@
         </nav>
 
         {* Keeps the heading outline h1 → h2 → h3 (cards) for screen readers. *}
-        <h2 class="visually-hidden">Статті</h2>
+        <h2 class="visually-hidden">Articles</h2>
 
         <div class="article-grid">
             {foreach $articles as $article}
@@ -36,6 +36,6 @@
 
         {include file="partials/pagination.tpl"}
     {else}
-        <p>У цій категорії поки немає статей.</p>
+        <p>There are no articles in this category yet.</p>
     {/if}
 {/block}

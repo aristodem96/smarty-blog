@@ -146,6 +146,9 @@ Decisions are made by the author; the AI assistant only proposes options.
   - `TRUNCATE` (with `FOREIGN_KEY_CHECKS = 0`) runs before the transaction; all inserts run in one
     transaction with reused prepared statements.
   - Logic in the `Database\Seeders\BlogSeeder` class (PSR-4 → `database/seeds/`); `bin/seed.php` is a thin CLI.
+  - *Updated in stage 9:* the whole site (UI and seeded content) was switched to English at the
+    author's request. `Slugger` stays: English titles are lower-cased and hyphenated, and Ukrainian
+    transliteration remains supported for Ukrainian titles.
 - **Alternatives:** Faker (external library, lowers the "own implementation" score); hand-written
   articles (too few for pagination); `ext-intl` Transliterator (heavier image); English content;
   photos from picsum.photos (network dependency in the entrypoint); GD generation (extra extension);

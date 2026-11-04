@@ -44,7 +44,7 @@
     color: var(--color-muted);
   }
 
-  // "Назад" / "Далі" words: only arrows on phones so the links fit on one line.
+  // "Previous" / "Next" words: only arrows on phones so the links fit on one line.
   &__label {
     @include visually-hidden;
 

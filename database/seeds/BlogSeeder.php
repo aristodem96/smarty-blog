@@ -128,7 +128,7 @@ final class BlogSeeder
             $title = sprintf($template, $topic);
             $round = intdiv($i, count($combinations));
             if ($round > 0) {
-                $title .= ' (частина ' . ($round + 1) . ')';
+                $title .= ' (part ' . ($round + 1) . ')';
             }
 
             $insertArticle->execute([

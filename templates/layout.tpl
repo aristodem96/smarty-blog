@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>{block name="title"}Smarty Blog{/block}</title>
-    <meta name="description" content="{block name="description"}Блог про веб-розробку: PHP, JavaScript, бази даних, DevOps, верстка і безпека.{/block}">
+    <meta name="description" content="{block name="description"}A blog about web development: PHP, JavaScript, databases, DevOps, HTML &amp; CSS and security.{/block}">
     {* ?v= changes whenever the CSS is rebuilt, so browsers never keep a stale stylesheet. *}
     <link rel="stylesheet" href="/assets/css/app.css?v={$assetVersion}">
 </head>
@@ -22,7 +22,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>Smarty Blog — тестове завдання AbeloHost</p>
+            <p>Smarty Blog — AbeloHost test assignment</p>
         </div>
     </footer>
 </body>
