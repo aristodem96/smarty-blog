@@ -1,17 +1,17 @@
 ---
-description: Показати поточний етап, план кроків і файли, які зачепимо
+description: Show the current stage, its step plan and the files it will touch
 ---
 
-Прочитай `docs/PROGRESS.md`, `docs/DECISIONS.md` і `docs/ARCHITECTURE.md`.
+Read `docs/PROGRESS.md`, `docs/DECISIONS.md` and `docs/ARCHITECTURE.md`.
 
-Виведи коротко (українською):
-1. **Поточний етап** — номер, назва, статус. Якщо попередній етап не позначений ✅ — скажи про це.
-2. **Відкриті рішення** — які ADR потрібні від автора до початку цього етапу; для кожного
-   2–3 варіанти з плюсами/мінусами і твоєю рекомендацією.
-3. **План кроків** — нумерований список, 3–8 пунктів.
-4. **Файли** — які створимо / змінимо (і нагадай, що інших файлів не чіпаємо).
-5. **Як перевірити** — команда чи URL, щоб автор переконався, що етап працює.
+Reply to the author in Ukrainian, briefly:
+1. **Current stage** — number, name, status. If the previous stage is not marked ✅, say so.
+2. **Open decisions** — which ADRs the author must decide before this stage starts; for each,
+   2–3 options with pros and cons and your recommendation.
+3. **Step plan** — a numbered list of 3–8 steps.
+4. **Files** — what will be created or changed (and a reminder that nothing else is touched).
+5. **How to verify** — a command or URL the author can use to confirm the stage works.
 
-Нічого не змінюй у файлах — лише план. Чекай «ок» автора.
+Do not change any files — plan only. Wait for the author's "ok".
 
 $ARGUMENTS

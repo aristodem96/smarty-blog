@@ -1,16 +1,15 @@
 ---
-description: Пояснити останні зміни так, ніби автора питають на інтерв'ю
+description: Explain the latest changes as if the author were asked about them in an interview
 ---
 
-Подивись останні зміни (`git diff`, або `git show HEAD`, якщо робоче дерево чисте)
-і відповідні записи в `docs/DECISIONS.md`.
+Look at the latest changes (`git diff`, or `git show HEAD` if the working tree is clean) and the
+related entries in `docs/DECISIONS.md`.
 
-Поясни українською у форматі підготовки до технічного інтерв'ю:
-1. **Що зроблено** — 2–3 речення простими словами.
-2. **Як це працює** — потік виконання по файлах (`файл:рядок`), без переказу кожного рядка.
-3. **5–7 ймовірних питань інтерв'юера** і стислі сильні відповіді на них
-   (чому так, а не інакше; що буде під навантаженням; як захищено від SQL-ін'єкцій/XSS;
-   як би змінилось у Laravel).
-4. **Слабкі місця** — що в цьому рішенні можна покритикувати і як відповісти на критику.
+Explain in Ukrainian, as technical interview preparation:
+1. **What was done** — 2–3 sentences in plain words.
+2. **How it works** — the execution flow across files (`file:line`), without retelling every line.
+3. **5–7 likely interviewer questions** with short, strong answers (why this and not something else;
+   what happens under load; how SQL injection/XSS are prevented; how it would look in Laravel).
+4. **Weak spots** — what could be criticized in this solution and how to respond to the criticism.
 
 $ARGUMENTS

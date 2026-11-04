@@ -1,6 +1,6 @@
-# Техническое задание (оригинал от компании AbeloHost)
+# Task
 
-> Текст ниже — дословно, как получено от компании. Не редактировать.
+## Original (Russian, verbatim as received from AbeloHost — do not edit)
 
 Необходимо разработать простой, но полностью рабочий веб-сайт на чистом PHP (без фреймворков) с использованием MySQL и шаблонизатора Smarty. Сайт должен реализовывать функционал блога с категориями и постами.
 
@@ -44,14 +44,49 @@
 
 ---
 
-## Власні критерії якості (не від компанії — сформульовані автором)
+## English translation
 
-- Простий і читабельний код без зайвої «архітектури заради архітектури», але з чіткою структурою
-  (public/index.php як точка входу, простий роутер, репозиторії для роботи з БД, шаблони Smarty окремо).
-- PDO з prepared statements, без SQL-ін'єкцій; правильна схема з таблицею зв'язку `article_category`
-  (багато-до-багатьох), індекси під сортування.
-- Лічильник переглядів, пагінація через LIMIT/OFFSET, «схожі статті» — за спільними категоріями.
-- Екранування виводу в шаблонах (XSS), обробка 404.
-- Сидер, який запускається однією командою.
-- Docker (PHP + MySQL + веб-сервер), запуск однією командою; SCSS, що компілюється в CSS.
-- README: як запустити, структура проєкту, ключові рішення.
+Build a simple but fully working website in plain PHP (no frameworks) using MySQL and the Smarty
+template engine. The site implements a blog with categories and posts.
+
+**Tech stack:** PHP 8.1+, Smarty, MySQL, no frameworks.
+
+**Data structure:**
+- Category: name, description.
+- Article: image, title, description, text, category (one or more), view count.
+
+**Required pages:**
+- Home page:
+  - Show every category that has articles, with its 3 latest posts (by publication date).
+  - Show an "All articles" button for each category.
+- Category page:
+  - Show the name, description and list of articles.
+  - Implement sorting (by view count, by publication date).
+  - Implement pagination.
+- Article page:
+  - Show all information about the article.
+  - Show a block of 3 similar articles.
+
+**Additional functionality:** seeding of categories and articles.
+
+**Evaluation criteria:** simplicity, readability and structure of the code; project structure; work
+with MySQL; level of own implementation; depth of understanding of the solution.
+
+**Nice to have:** SCSS for styles; a Docker environment.
+
+**Submission:** a link to a public GitHub repository. Commits should be incremental, showing the
+progress and logic of the implementation. State whether AI was used and for what exactly.
+
+---
+
+## Additional quality criteria (set by the author, not by the company)
+
+- Simple, readable code without architecture for its own sake, but with a clear structure
+  (`public/index.php` as the entry point, a simple router, repositories for DB access, Smarty templates separately).
+- PDO with prepared statements, no SQL injection; a proper schema with an `article_category` pivot
+  table (many-to-many) and indexes for sorting.
+- View counter, LIMIT/OFFSET pagination, "similar articles" based on shared categories.
+- Output escaping in templates (XSS), 404 handling.
+- A seeder that runs with a single command.
+- Docker (PHP + MySQL + web server) started with a single command; SCSS compiled to CSS.
+- README: how to run, project structure, key decisions.

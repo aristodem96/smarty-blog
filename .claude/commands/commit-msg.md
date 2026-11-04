@@ -1,15 +1,15 @@
 ---
-description: Запропонувати повідомлення коміту (Conventional Commits, англійською)
+description: Suggest a commit message (Conventional Commits, English)
 ---
 
-Подивись `git status`, `git diff --staged` (якщо порожньо — `git diff`) і `git log --oneline -10`.
+Look at `git status`, `git diff --staged` (if empty, `git diff`) and `git log --oneline -10`.
 
-Запропонуй **одне** повідомлення коміту англійською у стилі Conventional Commits:
-- заголовок `type(scope): summary` — до 72 символів, наказовий спосіб, без крапки
+Suggest **one** commit message in English following Conventional Commits:
+- subject `type(scope): summary` — up to 72 characters, imperative mood, no trailing period
   (`feat`, `fix`, `chore`, `docs`, `refactor`, `style`, `build`, `test`);
-- порожній рядок, потім 2–5 буллетів тіла: що і **чому** змінено;
-- останній рядок тіла — номер етапу, напр. `Stage: 3`.
+- a blank line, then 2–5 bullet points: what changed and **why**;
+- the last body line is the stage number, e.g. `Stage: 3`.
 
-Виведи готовий текст у блоці коду. Коміт не роби — його робить автор.
+Print the message in a code block. Do not commit — the author does that.
 
 $ARGUMENTS

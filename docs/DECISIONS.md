@@ -1,253 +1,253 @@
-# Журнал рішень (ADR)
+# Architecture Decision Records
 
-Формат: **Дата · Рішення · Альтернативи · Чому так**.
-Рішення приймає автор; ІІ лише пропонує варіанти.
-
----
-
-## ADR-001 · Організація роботи з ІІ через CLAUDE.md і docs/
-- **Дата:** 2026-11-04
-- **Рішення:** вести проєктну пам'ять у репозиторії: `CLAUDE.md` (правила),
-  `docs/` (ТЗ, архітектура, рішення, прогрес, журнал ІІ), `.claude/` (дозволи, власні команди).
-- **Альтернативи:** працювати без документації (контекст губиться між сесіями);
-  тримати нотатки поза репозиторієм (рецензент не бачить ходу думки).
-- **Чому так:** ТЗ вимагає чесно вказати використання ІІ і показати хід роботи —
-  журнали в репозиторії роблять це прозорим; DECISIONS.md — шпаргалка до інтерв'ю.
+Format: **Date · Decision · Alternatives · Rationale**.
+Decisions are made by the author; the AI assistant only proposes options.
 
 ---
 
-## ADR-002 · Структура проєкту: шари за типом (MVC-lite)
-- **Дата:** 2026-11-04
-- **Рішення:** групувати код за типом відповідальності: `src/Core` (роутер, БД, view),
-  `src/Controller`, `src/Repository`; шаблони Smarty окремо в `templates/`;
-  єдина точка входу `public/index.php`. Namespace `App\` → `src/` (PSR-4).
-- **Альтернативи:** модулі за фічами (`src/Article/`, `src/Category/`) — краще масштабуються,
-  але на двох сутностях це зайва структура; головна сторінка і «схожі статті» не мають
-  природного модуля.
-- **Чому так:** проєкт маленький, оцінюється простота; структура знайома з Laravel
-  і зрозуміла рецензенту з першого погляду; потік запиту лінійний і легко пояснюється.
+## ADR-001 · Organizing AI-assisted work with CLAUDE.md and docs/
+- **Date:** 2026-11-04
+- **Decision:** keep the project memory in the repository: `CLAUDE.md` (rules), `docs/` (task,
+  architecture, decisions, progress, AI usage log), `.claude/` (permissions, custom commands).
+- **Alternatives:** no documentation (context is lost between sessions); notes outside the
+  repository (reviewers cannot see the reasoning).
+- **Rationale:** the task asks to state honestly how AI was used and to show the progress of the
+  work — logs in the repository make this transparent; DECISIONS.md doubles as interview notes.
 
 ---
 
-## ADR-003 · Схема БД: три таблиці, slug в URL, `description` як TEXT
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - `categories`, `articles`, зв'язка `article_category` (багато-до-багатьох, складений PK).
-  - В URL — `slug` (`/category/php`, `/article/my-first-post`), у таблицях `UNIQUE` індекс на `slug`.
-  - `articles.description` — `TEXT`, бо анонс може бути великим; для карток обрізаємо в шаблоні.
-  - Індекси під сортування: `articles(published_at)`, `articles(views)`;
-    зворотний індекс зв'язки `article_category(category_id, article_id)`.
-  - InnoDB (потрібні FK і транзакції), `utf8mb4` (повний Unicode, emoji).
-  - *Оновлено 2026-11-04 (етап 2):* collation `utf8mb4_0900_ai_ci` замість `utf8mb4_unicode_ci` —
-    дефолт MySQL 8, Unicode 9.0 замість 4.0, швидше порівняння.
-  - *Оновлено 2026-11-04 (етап 2):* прибрано `articles.updated_at ... ON UPDATE CURRENT_TIMESTAMP` —
-    його змінював би кожен інкремент `views` (тобто кожен перегляд), а редагування статей
-    у ТЗ немає. Лишився `created_at`.
-- **Альтернативи:**
-  - `id` в URL — простіше (немає генерації та унікальності slug), але гірше для SEO й читабельності.
-  - `description VARCHAR(500)` — жорстко обмежує довжину анонсу; відкинуто, бо анонс може бути довгим.
-  - Денормалізувати `published_at` у зв'язку для індексу `(category_id, published_at)` —
-    передчасна оптимізація для такого обсягу даних.
-- **Чому так:** нормалізована схема прямо відповідає ТЗ («одна або кілька категорій»);
-  складений PK унеможливлює дублі зв'язків і обслуговує пошук категорій статті
-  («схожі статті»), зворотний індекс — пошук статей категорії (головна, сторінка категорії).
+## ADR-002 · Project structure: layered by type (MVC-lite)
+- **Date:** 2026-11-04
+- **Decision:** group code by responsibility: `src/Core` (router, DB, view), `src/Controller`,
+  `src/Repository`; Smarty templates separately in `templates/`; single entry point
+  `public/index.php`. Namespace `App\` → `src/` (PSR-4).
+- **Alternatives:** feature modules (`src/Article/`, `src/Category/`) — scale better, but are
+  extra structure for two entities; the home page and "similar articles" have no natural module.
+- **Rationale:** the project is small and simplicity is evaluated; the layout is familiar from
+  Laravel and obvious to a reviewer; the request flow is linear and easy to explain.
 
 ---
 
-## ADR-004 · Версії: мінімум PHP 8.1 у коді, PHP 8.3 / MySQL 8.4 / Smarty 5 у рантаймі
-- **Дата:** 2026-11-04
-- **Рішення:** `composer.json`: `"php": ">=8.1"` + `config.platform.php = 8.1.0`;
-  код пишемо лише з можливостями 8.1. Docker: `php:8.3-fpm-alpine`, `mysql:8.4` (LTS),
-  `nginx:1.30-alpine`. Шаблонізатор — Smarty 5.x (namespaced `Smarty\Smarty`).
-- **Альтернативи:** PHP 8.1 і в Docker — буквально як у ТЗ, але 8.1 EOL з 31.12.2025
-  (без патчів безпеки); MySQL 8.0 — EOL; Smarty 4 — застаріла гілка без namespaces.
-- **Чому так:** «8.1+» у ТЗ — нижня межа. `platform.php` гарантує, що Composer не підтягне
-  залежностей, несумісних з 8.1, тож проєкт формально відповідає ТЗ, а працює на
-  підтримуваних версіях.
+## ADR-003 · Database schema: three tables, slugs in URLs, `description` as TEXT
+- **Date:** 2026-11-04
+- **Decision:**
+  - `categories`, `articles` and the `article_category` pivot (many-to-many, composite PK).
+  - URLs use `slug` (`/category/php`, `/article/my-first-post`) with a `UNIQUE` index on `slug`.
+  - `articles.description` is `TEXT`, since a summary can be long; cards truncate it in the template.
+  - Indexes for sorting: `articles(published_at)`, `articles(views)`; reverse pivot index
+    `article_category(category_id, article_id)`.
+  - InnoDB (foreign keys and transactions), `utf8mb4` (full Unicode, emoji).
+  - *Updated in stage 2:* collation `utf8mb4_0900_ai_ci` instead of `utf8mb4_unicode_ci` —
+    MySQL 8 default, Unicode 9.0 instead of 4.0, faster comparisons.
+  - *Updated in stage 2:* removed `articles.updated_at ... ON UPDATE CURRENT_TIMESTAMP` — every
+    `views` increment (i.e. every page view) would change it, and editing articles is out of scope.
+    `created_at` remains.
+- **Alternatives:**
+  - `id` in URLs — simpler (no slug generation or uniqueness), but worse for SEO and readability.
+  - `description VARCHAR(500)` — hard limit on summary length; rejected because summaries can be long.
+  - Denormalize `published_at` into the pivot for a `(category_id, published_at)` index —
+    premature optimization for this data size.
+- **Rationale:** the normalized schema matches the task directly ("one or more categories");
+  the composite PK prevents duplicate links and serves "categories of an article" (similar
+  articles), the reverse index serves "articles of a category" (home page, category page).
 
 ---
 
-## ADR-005 · Docker: Nginx + PHP-FPM, Composer у контейнері, ініціалізація в entrypoint
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - Три сервіси: `nginx` (статика + проксі на FPM), `php` (FPM), `mysql`.
-  - Nginx монтує лише `public/` і виконує лише `index.php`; інші `.php` → 404, приховані файли → 403.
-  - Composer копіюється в образ (`COPY --from=composer:2`) і запускається в контейнері.
-  - `entrypoint.sh` на кожному старті: `composer install` (no-op, якщо `vendor/` актуальний),
-    створює `var/` з правами для `www-data`, далі — стандартний `docker-php-entrypoint`.
-  - PHP стартує лише після `healthcheck` MySQL (`depends_on: service_healthy`); healthcheck
-    по TCP, бо під час ініціалізації MySQL піднімає тимчасовий сервер без мережі.
-  - Креденшли — у `docker-compose.yml` з дефолтами `${VAR:-default}`; `.env` необов'язковий.
-- **Альтернативи:** Apache + mod_php (один контейнер, але `.htaccess` і застарілий стек);
-  Composer на хості (vendor збирається під іншу версію PHP); Makefile (немає на Windows)
-  або лише команди в README (не «одна команда»).
-- **Чому так:** продакшн-подібний стек; `docker compose up` — єдина команда для запуску;
-  дефолти змінних дозволяють стартувати без копіювання `.env`.
-- **Наслідок:** усе, що додаємо в entrypoint (міграції — етап 2, сидер — етап 4), має бути
-  ідемпотентним; сидер автоматично — лише на порожній БД.
+## ADR-004 · Versions: PHP 8.1 minimum in code; PHP 8.3 / MySQL 8.4 / Smarty 5 at runtime
+- **Date:** 2026-11-04
+- **Decision:** `composer.json`: `"php": ">=8.1"` plus `config.platform.php = 8.1.0`; code uses
+  PHP 8.1 features only. Docker: `php:8.3-fpm-alpine`, `mysql:8.4` (LTS), `nginx:1.30-alpine`.
+  Template engine: Smarty 5.x (namespaced `Smarty\Smarty`).
+- **Alternatives:** PHP 8.1 in Docker as well — literally as in the task, but 8.1 has been EOL
+  since 2025-12-31 (no security fixes); MySQL 8.0 — EOL; Smarty 4 — legacy branch without namespaces.
+- **Rationale:** "8.1+" in the task is a lower bound. `platform.php` guarantees Composer never pulls
+  dependencies incompatible with 8.1, so the project formally meets the task while running on
+  supported versions.
 
 ---
 
-## ADR-006 · Міграції: нумеровані SQL-файли + таблиця `migrations`, підключення до БД в етапі 2
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - `database/migrations/NNN_name.sql` — одна таблиця на файл; `bin/migrate.php` застосовує файли
-    за порядком імен, пропускаючи записані в `migrations`. Викликається з entrypoint.
-  - `--fresh` — видаляє всі таблиці БД і застосовує міграції заново. Down-міграцій немає.
-  - `config/config.php` і `src/Core/Database.php` створено в етапі 2 (а не 3), бо міграції
-    потрібне підключення. PDO: `ERRMODE_EXCEPTION`, `FETCH_ASSOC`, `EMULATE_PREPARES = false`.
-- **Альтернативи:** один `schema.sql` з `IF NOT EXISTS` (не оновлює існуючі таблиці);
-  `/docker-entrypoint-initdb.d` у MySQL (лише на порожньому volume, прив'язка до Docker);
-  down-міграції (зайве для тестового); тимчасовий DSN у скрипті (код на викид).
-- **Чому так:** ідемпотентність за конструкцією (потрібна entrypoint); зміни схеми — новим
-  файлом; знайома модель (як у Laravel). DDL у MySQL робить неявний COMMIT, тому транзакції
-  не допомагають — дрібні файли роблять збій локалізованим, запис у `migrations` — лише після успіху.
+## ADR-005 · Docker: Nginx + PHP-FPM, Composer in the container, initialization in the entrypoint
+- **Date:** 2026-11-04
+- **Decision:**
+  - Services: `nginx` (static files + FastCGI proxy), `php` (FPM), `mysql`.
+  - Nginx mounts only `public/` and executes only `index.php`; any other `.php` → 404, hidden files → 403.
+  - Composer is copied into the image (`COPY --from=composer:2`) and runs inside the container.
+  - `entrypoint.sh` on every start: `composer install` (no-op when `vendor/` is up to date),
+    creates `var/` writable by `www-data`, then hands over to `docker-php-entrypoint`.
+  - PHP starts only after the MySQL healthcheck passes (`depends_on: service_healthy`); the
+    healthcheck uses TCP because MySQL runs a temporary networkless server during initialization.
+  - Credentials live in `docker-compose.yml` with `${VAR:-default}` defaults; `.env` is optional.
+- **Alternatives:** Apache + mod_php (one container, but `.htaccess` and a dated stack); Composer
+  on the host (`vendor/` built for a different PHP version); a Makefile (not available on Windows)
+  or commands in the README only (not "one command").
+- **Rationale:** production-like stack; `docker compose up` is the only command needed; variable
+  defaults allow starting without copying `.env`.
+- **Consequence:** everything added to the entrypoint (migrations in stage 2, seeding in stage 4)
+  must be idempotent; automatic seeding runs on an empty database only.
 
 ---
 
-## ADR-007 · HTTP-шар: Router, Request, Response, ручне збирання залежностей
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - `Router` з плейсхолдерами `{slug}` → regex `[a-z0-9-]+`; параметри передаються в контролер
-    як **іменовані аргументи** (`show(Request $request, string $slug)`). Лише GET/HEAD.
-    Маршрути (3 шт.) реєструються в `public/index.php` поряд зі створенням контролерів.
-  - Контролер завжди повертає `Response` (статус, заголовки, тіло).
-  - «Не знайдено» з будь-якого місця — `NotFoundException`; front controller перетворює її
-    на `Response` 404, будь-який інший `Throwable` — на 500 + `error_log`. Деталі помилки — лише
-    при `APP_DEBUG=1`. Warnings/notices перетворюються на `ErrorException`.
-  - `Request` (readonly) створюється з суперглобальних один раз; `query()` повертає лише рядки.
-  - Залежності збираються вручну через `new` в `index.php`, без DI-контейнера.
-  - Layout — наслідування шаблонів Smarty (`{extends}` + `{block}`), автоекранування `escape_html`.
-- **Альтернативи:** `match(true)` у `index.php` (маршрути змішані з bootstrap);
-  контролер повертає рядок (простіше, але без контролю статусу/заголовків); DI-контейнер з
-  Reflection (магія); `$_GET` у контролерах (глобальний стан); `{include}` header/footer.
-- **Чому так:** `Response` обрано автором з розрахунку на масштабування (редиректи, заголовки,
-  JSON, тестування без output buffering); виняток для 404 прибирає дублювання рендеру 404 —
-  так само працюють Symfony/Laravel (`abort(404)`). Валідація slug у роутері відсікає сміттєві
-  URL до звернення в БД.
+## ADR-006 · Migrations: numbered SQL files + `migrations` table; DB connection moved to stage 2
+- **Date:** 2026-11-04
+- **Decision:**
+  - `database/migrations/NNN_name.sql`, one table per file; `bin/migrate.php` applies files in name
+    order and skips those recorded in `migrations`. Called from the entrypoint.
+  - `--fresh` drops every table and re-applies all migrations. No down migrations.
+  - `config/config.php` and `src/Core/Database.php` were created in stage 2 (not 3) because
+    migrations need a connection. PDO: `ERRMODE_EXCEPTION`, `FETCH_ASSOC`, `EMULATE_PREPARES = false`.
+- **Alternatives:** a single `schema.sql` with `IF NOT EXISTS` (does not update existing tables);
+  `/docker-entrypoint-initdb.d` in MySQL (runs on an empty volume only, tied to Docker); down
+  migrations (unnecessary for a test task); a temporary DSN in the script (throwaway code).
+- **Rationale:** idempotent by design (required by the entrypoint); schema changes are new files;
+  familiar model (as in Laravel). DDL in MySQL commits implicitly, so transactions do not help —
+  small files keep failures local, and a migration is recorded only after it succeeds.
 
 ---
 
-## ADR-008 · Сидер: власний детермінований генератор, українська транслітерація, SVG
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - 7 фіксованих категорій (одна — без статей, перевіряє фільтр на головній); статті генеруються
-    з комбінацій «шаблон заголовка × тема категорії» + пули абзаців (`database/seeds/data/blog.php`).
-    Кожна стаття — у своїй категорії + 0–2 випадкові інші. `mt_srand(42)` → однакові дані щоразу.
-  - Контент українською; slug — власний `App\Support\Slugger` за стандартом КМУ №55 (2010),
-    дублікати slug отримують суфікс `-2`, `-3`.
-  - Зображення — 8 SVG у `public/images/articles/` (у репозиторії), у БД — шлях від `public/`.
-  - `bin/seed.php` завжди перестворює дані (`--articles=N`, за замовчуванням 80);
-    entrypoint викликає `--if-empty` → наповнює лише порожню БД.
-  - `TRUNCATE` (з `FOREIGN_KEY_CHECKS = 0`) — до транзакції; усі вставки — в одній транзакції
-    через перевикористані prepared statements.
-  - Логіка — клас `Database\Seeders\BlogSeeder` (PSR-4 → `database/seeds/`), CLI — тонкий `bin/seed.php`.
-- **Альтернативи:** Faker (зовнішня бібліотека, знижує «самостійність»); вручну написані статті
-  (замало для пагінації); `ext-intl` Transliterator (важкий образ); англійський контент;
-  фото з picsum.photos (залежність від мережі в entrypoint); GD-генерація (зайве розширення);
-  відмова сидити непорожню БД без `--force`; процедурний скрипт.
-- **Чому так:** відтворювані дані покривають усі сценарії ТЗ (кілька категорій у статті,
-  порожня категорія, кілька сторінок пагінації, різні перегляди/дати), без зовнішніх залежностей.
+## ADR-007 · HTTP layer: Router, Request, Response, manual dependency wiring
+- **Date:** 2026-11-04
+- **Decision:**
+  - `Router` with `{slug}` placeholders → regex `[a-z0-9-]+`; parameters are passed to the controller
+    as **named arguments** (`show(Request $request, string $slug)`). GET/HEAD only. The three routes
+    are registered in `public/index.php` next to the controller construction.
+  - Controllers always return a `Response` (status, headers, body).
+  - "Not found" from anywhere is a `NotFoundException`; the front controller turns it into a 404
+    `Response`, any other `Throwable` into a 500 plus `error_log`. Error details are shown only with
+    `APP_DEBUG=1`. Warnings and notices are converted to `ErrorException`.
+  - `Request` (readonly) is built from superglobals once; `query()` returns strings only.
+  - Dependencies are wired manually with `new` in `index.php`, no DI container.
+  - Layout uses Smarty template inheritance (`{extends}` + `{block}`) with `escape_html` auto-escaping.
+- **Alternatives:** `match(true)` in `index.php` (routes mixed with bootstrap); controllers returning
+  strings (simpler, but no control over status/headers); a reflection-based DI container (magic);
+  `$_GET` in controllers (global state); `{include}` header/footer.
+- **Rationale:** the author chose `Response` with scaling in mind (redirects, headers, JSON, testing
+  without output buffering); an exception for 404 removes duplicated 404 rendering — the same way
+  Symfony and Laravel (`abort(404)`) work. Slug validation in the router rejects junk URLs before
+  any database call.
 
 ---
 
-## ADR-009 · Головна: один запит з ROW_NUMBER(), readonly-сутності, категорії за свіжістю
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - `CategoryRepository::findWithLatestArticles(3)` — **один** SQL-запит: у підзапиті
-    `ROW_NUMBER() OVER (PARTITION BY category_id ORDER BY published_at DESC, id DESC)` та
-    `MAX(published_at) OVER (PARTITION BY category_id)` рахуються лише над id; повні колонки
-    статей приєднуються зовні тільки для відібраних рядків (`position <= 3`).
-    Порожні категорії відпадають самі (немає рядків у `article_category`).
-  - Категорії впорядковані за найсвіжішою статтею, далі за `id`.
-  - Репозиторії повертають readonly-сутності `App\Entity\Category` / `Article` (`fromRow()`),
-    дати — `DateTimeImmutable`, форматуються в шаблоні через `->format()`.
-  - Картка статті — `templates/partials/article-card.tpl` (перевикористовується на етапах 6–7).
-- **Альтернативи:** окремий запит на кожну категорію (N+1); `JOIN LATERAL … LIMIT 3`
-  (найшвидше на великих даних — читає по індексу рівно 3 рядки на категорію, але малознайомий
-  синтаксис); асоціативні масиви в шаблонах (без гарантій структури); `date_format` Smarty
-  (спирається на застарілий `strftime`); порядок категорій за алфавітом / `id`.
-- **Чому так:** фіксована кількість запитів незалежно від кількості категорій; віконні функції —
-  стандартний SQL, підтримуються з MySQL 8.0. Ціна: ROW_NUMBER рахується для всіх зв'язків
-  (EXPLAIN: повний прохід індексу `article_category` + filesort) — дешево на тисячах статей;
-  на мільйонах — перехід на LATERAL.
+## ADR-008 · Seeder: own deterministic generator, Ukrainian transliteration, SVG images
+- **Date:** 2026-11-04
+- **Decision:**
+  - 7 fixed categories (one without articles, to check the home page filter); articles are generated
+    from "title template × category topic" combinations plus paragraph pools
+    (`database/seeds/data/blog.php`). Each article belongs to its own category plus 0–2 random others.
+    `mt_srand(42)` → identical data on every run.
+  - Content is Ukrainian; slugs come from the own `App\Support\Slugger` following the official
+    Ukrainian transliteration standard (Cabinet of Ministers Resolution No. 55, 2010); duplicate slugs
+    get `-2`, `-3` suffixes.
+  - Images: 8 SVGs in `public/images/articles/` (committed); the DB stores the path from `public/`.
+  - `bin/seed.php` always recreates the data (`--articles=N`, default 80); the entrypoint calls it
+    with `--if-empty`, so only an empty database is seeded.
+  - `TRUNCATE` (with `FOREIGN_KEY_CHECKS = 0`) runs before the transaction; all inserts run in one
+    transaction with reused prepared statements.
+  - Logic in the `Database\Seeders\BlogSeeder` class (PSR-4 → `database/seeds/`); `bin/seed.php` is a thin CLI.
+- **Alternatives:** Faker (external library, lowers the "own implementation" score); hand-written
+  articles (too few for pagination); `ext-intl` Transliterator (heavier image); English content;
+  photos from picsum.photos (network dependency in the entrypoint); GD generation (extra extension);
+  refusing to seed a non-empty database without `--force`; a procedural script.
+- **Rationale:** reproducible data covering every scenario in the task (articles in several categories,
+  an empty category, multiple pages, varied views and dates) without external dependencies.
 
 ---
 
-## ADR-010 · Сторінка категорії: enum-сортування, LIMIT/OFFSET, окремий COUNT, 404 для зайвих сторінок
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - `?sort=date|views` з фіксованим напрямком (нові / популярні). Backed enum
-    `App\Repository\ArticleSort` — whitelist для `ORDER BY` (`tryFrom()`; невідоме значення → `Date`).
-    Перемикання сортування скидає на сторінку 1.
-  - 9 статей на сторінку; `LIMIT :limit OFFSET :offset` з int-параметрами.
-  - Загальна кількість — окремий `COUNT(*)` по `article_category` (лише індекс).
-  - `?page` — `filter_var(FILTER_VALIDATE_INT, min_range 1)`; невалідна або поза діапазоном → 404.
-    Відсутній `page` = 1; порожня категорія — сторінка 1 з повідомленням.
-  - `App\Support\Pagination` — readonly value object (offset, totalPages, links) з «вікном»
-    `1 … 4 5 [6] 7 8 … 20` (радіус 2; пропуск в одну сторінку показується числом, не «…»).
-  - Посилання сторінки 1 — без `&page`, `sort` зберігається в усіх посиланнях пагінації.
-- **Альтернативи:** `?sort=…&dir=…` (подвійна валідація без користі для читача);
-  12/10 на сторінку; редирект на останню сторінку (дружніше, але маскує неіснуючі URL);
-  `SQL_CALC_FOUND_ROWS` (deprecated з MySQL 8.0.17, часто повільніший); `COUNT(*) OVER ()`
-  (порожній результат поза діапазоном не дає total); усі номери сторінок (не масштабується).
-- **Чому так:** ТЗ вимагає два сортування — enum робить їх типобезпечними і закриває SQL-ін'єкцію
-  в `ORDER BY`; 404 — чесна відповідь для неіснуючої сторінки, без дублів контенту.
-  «Вікно» в пагінації — вибір автора з розрахунку на зростання кількості статей.
-- **Відомі обмеження:** OFFSET-пагінація сповільнюється на далеких сторінках (MySQL читає й
-  відкидає OFFSET рядків) — при великих обсягах keyset-пагінація (`WHERE (published_at, id) < (…)`).
-  `?page[]=2` трактується як відсутній `page` (сторінка 1), бо `Request::query()` повертає лише рядки.
+## ADR-009 · Home page: one ROW_NUMBER() query, readonly entities, categories by freshness
+- **Date:** 2026-11-04
+- **Decision:**
+  - `CategoryRepository::findWithLatestArticles(3)` — **one** SQL query: the subquery computes
+    `ROW_NUMBER() OVER (PARTITION BY category_id ORDER BY published_at DESC, id DESC)` and
+    `MAX(published_at) OVER (PARTITION BY category_id)` over ids only; full article columns are
+    joined outside for the selected rows (`position <= 3`). Empty categories drop out naturally
+    (no rows in `article_category`).
+  - Categories are ordered by their most recent article, then by `id`.
+  - Repositories return readonly entities `App\Entity\Category` / `Article` (`fromRow()`); dates are
+    `DateTimeImmutable`, formatted in templates with `->format()`.
+  - Article card: `templates/partials/article-card.tpl` (reused in stages 6–7).
+- **Alternatives:** one query per category (N+1); `JOIN LATERAL … LIMIT 3` (fastest on large data —
+  reads exactly 3 index rows per category — but less familiar syntax); associative arrays in templates
+  (no structural guarantees); Smarty `date_format` (relies on deprecated `strftime`); categories
+  ordered alphabetically or by `id`.
+- **Rationale:** a fixed number of queries regardless of the number of categories; window functions
+  are standard SQL, available since MySQL 8.0. Cost: ROW_NUMBER is computed for every link (EXPLAIN:
+  full scan of the `article_category` index + filesort) — cheap for thousands of articles; for
+  millions, switch to LATERAL.
 
 ---
 
-## ADR-011 · Сторінка статті: лічильник з cookie-дедуплікацією, схожі — за спільними категоріями
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - Перегляд рахується один раз на браузер: cookie `viewed_articles` (id через `.`, бо кома
-    заборонена RFC 6265; останні 50 id; `Max-Age` 24 год; `HttpOnly`; `SameSite=Lax`).
-    Логіка — `App\Support\ViewedArticles`; значення cookie — ввід користувача, приймаються
-    лише додатні цілі. HEAD не рахується.
-  - Інкремент атомарний: `UPDATE articles SET views = views + 1 WHERE id = ?`. На сторінці —
-    `views + 1` у пам'яті (`Article::withViews()`), без повторного SELECT.
-  - Схожі: один запит — self-join `article_category`, `COUNT(*)` спільних категорій,
-    `ORDER BY shared DESC, published_at DESC, id DESC LIMIT 3`, поточна стаття виключена.
-    Знайдено менше 3 — показуємо скільки є, 0 — блок прихований.
-  - Текст — `Article::paragraphs()` (розбиття за порожніми рядками) → `<p>` з автоекрануванням.
-  - Категорії статті — `CategoryRepository::findByArticle()`, посилання на сторінки категорій.
-  - `Response` приймає додаткові заголовки поверх дефолтних (`Set-Cookie`); `Request::cookie()`.
-- **Альтернативи:** рахувати кожен GET (F5 накручує); PHP-сесія (серверний стан заради
-  лічильника); таблиця `article_views` з IP (точніше, але нова таблиця і GDPR);
-  tie-breaker за переглядами (популярне стає популярнішим) чи `RAND()` (сортує всіх кандидатів,
-  невідтворювано); доповнення схожих найсвіжішими статтями; `|nl2br` (escape_html
-  застосовується після модифікатора і заекранував би `<br>`).
-- **Чому так:** захист від випадкових F5 без серверного стану; атомарний UPDATE без гонок;
-  «схожість» за ТЗ — через спільні категорії, детермінований порядок.
-- **Відомі обмеження:** `Max-Age` оновлюється при кожному новому перегляді, тож вікно
-  «24 години» відлічується від останнього запису cookie, а не окремо для кожної статті;
-  захист легко обійти очищенням cookie (для блогу прийнятно). `Response` тримає заголовки
-  як `name => value`, тож два `Set-Cookie` в одній відповіді не підтримуються.
+## ADR-010 · Category page: enum sorting, LIMIT/OFFSET, separate COUNT, 404 for missing pages
+- **Date:** 2026-11-04
+- **Decision:**
+  - `?sort=date|views` with a fixed direction (newest / most viewed). The backed enum
+    `App\Repository\ArticleSort` is the `ORDER BY` whitelist (`tryFrom()`; unknown value → `Date`).
+    Changing the sort order resets to page 1.
+  - 9 articles per page; `LIMIT :limit OFFSET :offset` with integer parameters.
+  - The total comes from a separate `COUNT(*)` on `article_category` (index only).
+  - `?page` is validated with `filter_var(FILTER_VALIDATE_INT, min_range 1)`; invalid or out of range
+    → 404. Missing `page` = 1; an empty category has a page 1 with a message.
+  - `App\Support\Pagination` — readonly value object (offset, totalPages, links) with a window
+    `1 … 4 5 [6] 7 8 … 20` (radius 2; a gap of one page is shown as the number, not "…").
+  - Page 1 links have no `&page`; `sort` is kept in every pagination link.
+- **Alternatives:** `?sort=…&dir=…` (double validation with no benefit to readers); 12 or 10 per page;
+  redirect to the last page (friendlier, but hides non-existent URLs); `SQL_CALC_FOUND_ROWS`
+  (deprecated since MySQL 8.0.17, often slower); `COUNT(*) OVER ()` (an out-of-range page returns no
+  rows, hence no total); listing every page number (does not scale).
+- **Rationale:** the task requires two sort orders — the enum makes them type-safe and closes SQL
+  injection through `ORDER BY`; 404 is the honest answer for a non-existent page and avoids duplicate
+  content. The pagination window is the author's choice, anticipating a growing number of articles.
+- **Known limitations:** OFFSET pagination slows down on deep pages (MySQL reads and discards OFFSET
+  rows) — at scale, keyset pagination (`WHERE (published_at, id) < (…)`). `?page[]=2` is treated as a
+  missing `page` (page 1) because `Request::query()` returns strings only.
 
 ---
 
-## ADR-012 · Стилі: SCSS у сервісі `assets`, БЕМ-файли, mobile-first, світла + темна тема
-- **Дата:** 2026-11-04
-- **Рішення:**
-  - Сервіс `assets` (`node:22-alpine`) у compose: `npm ci && npm run build` → `public/assets/css/app.css`
-    (compressed, без source map) і завершується; `nginx` стартує після
-    `service_completed_successfully`. Watch: `docker compose run --rm assets npm run watch` (`--poll`).
-  - Компілятор — `sass` (Dart Sass, єдина npm-залежність); модулі через `@use`.
-  - Структура: `abstracts/` (змінні, `respond-to()`, `visually-hidden`, `focus-ring`), `base/`
-    (тема, reset, типографіка), `layout/`, `components/` — один БЕМ-блок на файл.
-  - Кольори — CSS custom properties; темна тема — `@media (prefers-color-scheme: dark)` перевизначає
-    ті самі змінні; `color-scheme: light dark`. SCSS-змінні — для значень часу компіляції.
-  - Mobile-first: `min-width` брейкпоінти; сітка `repeat(auto-fill, minmax(min(100%, 260px), 1fr))`
-    без медіазапитів. Системні шрифти. Уся картка клікабельна через `::after` заголовка.
-  - Cache busting: `app.css?v=<filemtime>` (глобальна змінна `View`).
-  - Доступність: `:focus-visible`, `prefers-reduced-motion`, текст «Назад/Далі» на телефоні
-    прихований лише візуально.
-- **Альтернативи:** multi-stage Dockerfile (перезбірка образу на кожну зміну стилів при bind mount);
-  npm на хості (рецензенту потрібен Node); комітити CSS (згенерований файл у git);
-  повний 7-1 (порожні папки) чи один файл; лише світла тема.
-- **Чому так:** `docker compose up` лишається однією командою без Node на хості; файл на БЕМ-блок —
-  стиль знаходиться за назвою класу з шаблону; темна тема — вибір автора, коштує ~15 рядків завдяки
-  custom properties.
+## ADR-011 · Article page: view counter with cookie deduplication, similar articles by shared categories
+- **Date:** 2026-11-04
+- **Decision:**
+  - A view is counted once per browser: cookie `viewed_articles` (ids joined with `.` because RFC 6265
+    forbids commas; last 50 ids; `Max-Age` 24 h; `HttpOnly`; `SameSite=Lax`). Logic lives in
+    `App\Support\ViewedArticles`; the cookie value is user input — only positive integers are
+    accepted. HEAD requests are not counted.
+  - Atomic increment: `UPDATE articles SET views = views + 1 WHERE id = ?`. The page shows
+    `views + 1` from memory (`Article::withViews()`), without a second SELECT.
+  - Similar articles: one query — `article_category` self-join, `COUNT(*)` of shared categories,
+    `ORDER BY shared DESC, published_at DESC, id DESC LIMIT 3`, the current article excluded.
+    Fewer than 3 found → show what was found; none → the block is hidden.
+  - Content: `Article::paragraphs()` (split on blank lines) → one auto-escaped `<p>` each.
+  - Article categories: `CategoryRepository::findByArticle()`, linked to category pages.
+  - `Response` accepts extra headers on top of the defaults (`Set-Cookie`); `Request::cookie()`.
+- **Alternatives:** count every GET (refreshes inflate the counter); PHP sessions (server state just for
+  a counter); an `article_views` table with IPs (more accurate, but a new table and GDPR concerns);
+  views as the tie-breaker (the popular get more popular) or `RAND()` (sorts all candidates, not
+  reproducible); filling similar articles with the latest posts; `|nl2br` (escape_html runs after
+  modifiers and would escape the `<br>`).
+- **Rationale:** protection against accidental refreshes without server state; an atomic UPDATE with no
+  race conditions; "similarity" through shared categories as the task says, with a deterministic order.
+- **Known limitations:** `Max-Age` is refreshed on every new view, so the 24-hour window counts from the
+  last cookie write, not per article; clearing cookies bypasses the protection (acceptable for a blog).
+  `Response` stores headers as `name => value`, so two `Set-Cookie` headers in one response are not supported.
+
+---
+
+## ADR-012 · Styles: SCSS in an `assets` service, one file per BEM block, mobile-first, light + dark theme
+- **Date:** 2026-11-04
+- **Decision:**
+  - `assets` service (`node:22-alpine`) in compose: `npm ci && npm run build` →
+    `public/assets/css/app.css` (compressed, no source map), then exits; `nginx` starts after
+    `service_completed_successfully`. Watch mode: `docker compose run --rm assets npm run watch` (`--poll`).
+  - Compiler: `sass` (Dart Sass, the only npm dependency); modules via `@use`.
+  - Structure: `abstracts/` (variables, `respond-to()`, `visually-hidden`, `focus-ring`), `base/`
+    (theme, reset, typography), `layout/`, `components/` — one BEM block per file.
+  - Colors are CSS custom properties; the dark theme is `@media (prefers-color-scheme: dark)`
+    overriding the same properties; `color-scheme: light dark`. SCSS variables hold compile-time values.
+  - Mobile-first `min-width` breakpoints; card grid `repeat(auto-fill, minmax(min(100%, 260px), 1fr))`
+    without media queries. System fonts. The whole card is clickable via the title link's `::after`.
+  - Cache busting: `app.css?v=<filemtime>` (a global `View` variable).
+  - Accessibility: `:focus-visible`, `prefers-reduced-motion`, "Previous/Next" labels on phones are
+    hidden visually only.
+- **Alternatives:** multi-stage Dockerfile (image rebuild on every style change with a bind mount);
+  npm on the host (reviewers need Node); committing the CSS (generated file in git); full 7-1 pattern
+  (empty folders) or a single file; light theme only.
+- **Rationale:** `docker compose up` stays a single command with no Node on the host; one file per BEM
+  block — a style is found by the class name in the template; the dark theme is the author's choice
+  and costs ~15 lines thanks to custom properties.

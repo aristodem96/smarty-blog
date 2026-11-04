@@ -1,44 +1,44 @@
-# Архітектура
+# Architecture
 
-Рішення: ADR-002 (структура), ADR-003 (схема БД) — див. [DECISIONS.md](DECISIONS.md).
+Key decisions: ADR-002 (structure), ADR-003 (database schema) — see [DECISIONS.md](DECISIONS.md).
 
-## 1. Структура проєкту
+## 1. Project structure
 ```
 smarty-blog/
-├── public/                 # document root веб-сервера — тільки це доступно ззовні
-│   ├── index.php           # front controller: єдина точка входу всіх HTTP-запитів
-│   ├── assets/             # скомпільований CSS
-│   └── images/articles/    # SVG-ілюстрації статей (шлях зберігається в articles.image)
-├── src/                    # PHP-код, namespace App\ (PSR-4)
-│   ├── Core/               # інфраструктура: Router, Request, Response, View (Smarty),
+├── public/                 # web server document root — the only publicly reachable folder
+│   ├── index.php           # front controller: single entry point for every HTTP request
+│   ├── assets/             # compiled CSS (build output, gitignored)
+│   └── images/articles/    # article SVG illustrations (path stored in articles.image)
+├── src/                    # PHP code, namespace App\ (PSR-4)
+│   ├── Core/               # infrastructure: Router, Request, Response, View (Smarty),
 │   │                       #   Database (PDO), NotFoundException
 │   ├── Controller/         # HomeController, CategoryController, ArticleController
-│   ├── Entity/             # readonly-сутності Category, Article (fromRow з рядка БД)
-│   ├── Repository/         # CategoryRepository, ArticleRepository, ArticleSort (enum) — увесь SQL тут
-│   └── Support/            # Slugger (транслітерація → slug), Pagination (value object),
-│                           #   ViewedArticles (cookie переглянутих статей)
-├── templates/              # Smarty-шаблони (.tpl): layout, сторінки, partials/, errors/
-├── config/                 # конфіг застосунку (значення з env-змінних)
+│   ├── Entity/             # readonly entities Category, Article (fromRow from a DB row)
+│   ├── Repository/         # CategoryRepository, ArticleRepository, ArticleSort (enum) — all SQL
+│   └── Support/            # Slugger (transliteration → slug), Pagination (value object),
+│                           #   ViewedArticles (viewed-articles cookie)
+├── templates/              # Smarty templates (.tpl): layout, pages, partials/, errors/
+├── config/                 # application config (values from environment variables)
 ├── database/
-│   ├── migrations/         # SQL-файли схеми
-│   └── seeds/              # BlogSeeder (namespace Database\Seeders), data/blog.php — вихідні дані
-├── bin/                    # CLI-скрипти: migrate.php, seed.php
-├── scss/                   # вихідні стилі → public/assets/css/app.css (сервіс assets)
-│   ├── app.scss            #   точка входу: лише @use
-│   ├── abstracts/          #   змінні, mixins (respond-to, visually-hidden, focus-ring)
-│   ├── base/               #   тема (custom properties, light/dark), reset, типографіка
+│   ├── migrations/         # SQL schema files
+│   └── seeds/              # BlogSeeder (namespace Database\Seeders), data/blog.php — source data
+├── bin/                    # CLI scripts: migrate.php, seed.php
+├── scss/                   # source styles → public/assets/css/app.css (assets service)
+│   ├── app.scss            #   entry point: @use only
+│   ├── abstracts/          #   variables, mixins (respond-to, visually-hidden, focus-ring)
+│   ├── base/               #   theme (custom properties, light/dark), reset, typography
 │   ├── layout/             #   container, header, footer, grid
-│   └── components/         #   один БЕМ-блок = один файл (article-card, pagination, …)
-├── package.json            # sass + скрипти build / watch
-├── docker/                 # Dockerfile PHP, конфіг Nginx
-├── var/                    # скомпільовані шаблони Smarty, кеш (у .gitignore)
-└── docs/                   # ТЗ, архітектура, рішення, прогрес, журнал ІІ
+│   └── components/         #   one BEM block per file (article-card, pagination, …)
+├── package.json            # sass + build / watch scripts
+├── docker/                 # PHP Dockerfile and entrypoint, Nginx config
+├── var/                    # compiled Smarty templates (gitignored)
+└── docs/                   # task, architecture, decisions, progress, AI usage log
 ```
 
-Чому `public/` окремо: веб-сервер віддає лише цю папку, тож `src/`, `config/`, `vendor/`
-фізично недоступні з браузера (не можна відкрити `/config/config.php`).
+Why `public/` is separate: the web server serves only this folder, so `src/`, `config/` and `vendor/`
+are physically unreachable from a browser (there is no way to open `/config/config.php`).
 
-## 2. Схема БД
+## 2. Database schema
 ```sql
 categories
   id            INT UNSIGNED PK AUTO_INCREMENT
@@ -51,9 +51,9 @@ articles
   id            INT UNSIGNED PK AUTO_INCREMENT
   title         VARCHAR(255) NOT NULL
   slug          VARCHAR(255) NOT NULL          UNIQUE
-  description   TEXT NOT NULL                  -- анонс, може бути великим
-  content       MEDIUMTEXT NOT NULL            -- повний текст
-  image         VARCHAR(255) NULL              -- шлях до файлу, не BLOB
+  description   TEXT NOT NULL                  -- summary, can be long
+  content       MEDIUMTEXT NOT NULL            -- full text
+  image         VARCHAR(255) NULL              -- file path, not a BLOB
   views         INT UNSIGNED NOT NULL DEFAULT 0
   published_at  DATETIME NOT NULL
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -66,49 +66,49 @@ article_category
   PRIMARY KEY (article_id, category_id)
   INDEX idx_article_category_category (category_id, article_id)
 
-migrations                                     -- службова, веде bin/migrate.php
-  name          VARCHAR(255) PK                -- ім'я застосованого SQL-файлу
+migrations                                     -- bookkeeping, managed by bin/migrate.php
+  name          VARCHAR(255) PK                -- applied SQL file name
   applied_at    DATETIME
 ```
 Engine InnoDB, charset `utf8mb4`, collation `utf8mb4_0900_ai_ci`.
-Міграції: `database/migrations/NNN_*.sql`, одна таблиця на файл (ADR-006).
+Migrations: `database/migrations/NNN_*.sql`, one table per file (ADR-006).
 
-| Індекс | Який запит обслуговує |
+| Index | Query it serves |
 |---|---|
-| `categories.slug`, `articles.slug` UNIQUE | пошук сторінки за URL + гарантія унікальності |
-| `article_category` PK `(article_id, category_id)` | категорії статті → «схожі статті»; захист від дублів |
-| `idx_article_category_category (category_id, article_id)` | статті категорії → головна, сторінка категорії |
-| `idx_published_at`, `idx_views` | сортування за датою / переглядами |
+| `categories.slug`, `articles.slug` UNIQUE | page lookup by URL + uniqueness guarantee |
+| `article_category` PK `(article_id, category_id)` | categories of an article → similar articles; no duplicate links |
+| `idx_article_category_category (category_id, article_id)` | articles of a category → home page, category page |
+| `idx_articles_published_at`, `idx_articles_views` | sorting by date / views |
 
-## 3. Потік запиту
+## 3. Request flow
 ```
-HTTP-запит
-  → Nginx (усе, що не є файлом у public/, віддає на public/index.php)
-  → public/index.php        — bootstrap: autoload, конфіг, error handler, View,
-                              контролери (через new), реєстрація маршрутів
-  → Request::fromGlobals()  — метод, шлях, query, cookies (єдине місце читання суперглобальних)
-  → Router::dispatch()      — GET/HEAD + regex шляху; {slug} → іменований аргумент
-  → Controller              — валідує query, викликає репозиторій, повертає Response
-  → Repository              — SQL через PDO (prepared statements)
-  → View::render()          — Smarty-шаблон з автоекрануванням
-  → Response::send()        — статус, заголовки, тіло
+HTTP request
+  → Nginx (anything that is not a file in public/ goes to public/index.php)
+  → public/index.php        — bootstrap: autoload, config, error handler, View,
+                              controllers (via new), route registration
+  → Request::fromGlobals()  — method, path, query, cookies (the only place reading superglobals)
+  → Router::dispatch()      — GET/HEAD + path regex; {slug} → named argument
+  → Controller              — validates query input, calls repositories, returns a Response
+  → Repository              — SQL through PDO (prepared statements)
+  → View::render()          — Smarty template with auto-escaping
+  → Response::send()        — status, headers, body
 
-Помилки (ловить index.php):
-  NotFoundException  → Response 404 (errors/404.tpl)
-  інший Throwable    → error_log + Response 500 (errors/500.tpl; деталі лише при APP_DEBUG=1)
+Errors (caught in index.php):
+  NotFoundException  → 404 Response (errors/404.tpl)
+  any other Throwable → error_log + 500 Response (errors/500.tpl; details only with APP_DEBUG=1)
 ```
 
-## 4. Ключові запити
-| Сторінка | Метод репозиторію | Запитів | Як |
+## 4. Key queries
+| Page | Repository methods | Queries | How |
 |---|---|---|---|
-| Головна | `CategoryRepository::findWithLatestArticles(3)` | 1 | `ROW_NUMBER()` + `MAX() OVER` у підзапиті над id, повні колонки — лише для `position <= 3` |
-| Категорія | `CategoryRepository::findBySlug`, `ArticleRepository::countByCategory`, `ArticleRepository::findByCategory` | 3 | slug → UNIQUE-індекс; COUNT — лише індекс зв'язки; список — `ORDER BY` з enum `ArticleSort`, `LIMIT/OFFSET` |
-| Стаття | `ArticleRepository::findBySlug`, `incrementViews`*, `findSimilar`; `CategoryRepository::findByArticle` | 3–4 | *UPDATE лише для нового перегляду (cookie); схожі — self-join `article_category` + `COUNT(*)` спільних категорій |
+| Home | `CategoryRepository::findWithLatestArticles(3)` | 1 | `ROW_NUMBER()` + `MAX() OVER` in a subquery over ids; full columns only for `position <= 3` |
+| Category | `CategoryRepository::findBySlug`, `ArticleRepository::countByCategory`, `ArticleRepository::findByCategory` | 3 | slug → UNIQUE index; COUNT from the pivot index only; list with `ORDER BY` from enum `ArticleSort`, `LIMIT/OFFSET` |
+| Article | `ArticleRepository::findBySlug`, `incrementViews`*, `findSimilar`; `CategoryRepository::findByArticle` | 3–4 | *UPDATE only for a new view (cookie); similar = `article_category` self-join + `COUNT(*)` of shared categories |
 
-## 5. Маршрути
-| Метод | Шлях                | Сторінка                                         |
-|-------|---------------------|--------------------------------------------------|
-| GET   | `/`                 | Головна                                          |
-| GET   | `/category/{slug}`  | Категорія (`?sort=date\|views`, `?page=N`)       |
-| GET   | `/article/{slug}`   | Стаття                                           |
-| —     | будь-що інше        | 404                                              |
+## 5. Routes
+| Method | Path                | Page                                              |
+|--------|---------------------|---------------------------------------------------|
+| GET    | `/`                 | Home                                              |
+| GET    | `/category/{slug}`  | Category (`?sort=date\|views`, `?page=N`)         |
+| GET    | `/article/{slug}`   | Article                                           |
+| —      | anything else       | 404                                               |

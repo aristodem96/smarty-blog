@@ -1,99 +1,90 @@
 # CLAUDE.md — smarty-blog
 
-Тестове завдання AbeloHost (Full-stack PHP/JS): блог з категоріями й статтями
-на чистому PHP + Smarty + MySQL. Дедлайн: **понеділок, 09.11.2026**.
-Повне ТЗ: [docs/TASK.md](docs/TASK.md).
+AbeloHost test assignment (Full-stack PHP/JS): a blog with categories and articles on plain PHP,
+Smarty and MySQL. Deadline: **Monday, 2026-11-09**. Full task: [docs/TASK.md](docs/TASK.md).
 
-## На початку кожної сесії прочитай
-1. [docs/PROGRESS.md](docs/PROGRESS.md) — де зупинились, поточний етап.
-2. [docs/DECISIONS.md](docs/DECISIONS.md) — вже прийняті рішення (не переглядай їх без запиту).
-3. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — структура, схема БД, потік запиту.
-4. [docs/AI_USAGE.md](docs/AI_USAGE.md) — журнал використання ІІ (дописуй після кожного етапу).
+## Read at the start of every session
+1. [docs/PROGRESS.md](docs/PROGRESS.md) — where we stopped, current stage.
+2. [docs/DECISIONS.md](docs/DECISIONS.md) — decisions already made (do not revisit unless asked).
+3. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — structure, DB schema, request flow.
+4. [docs/AI_USAGE.md](docs/AI_USAGE.md) — AI usage log (append after every stage).
 
-## Стек і жорсткі обмеження
-- PHP 8.1+ (без фреймворків: ні Laravel, ні Symfony, ні Slim, ні їхніх компонентів).
-  Код — **лише з можливостями 8.1** (Composer `platform.php = 8.1.0`), Docker запускає 8.3 (ADR-004).
-- Smarty — єдиний шаблонізатор.
-- MySQL 8 через **PDO** (без ORM, без query builder-ів).
-- Composer — лише для Smarty та автозавантаження PSR-4.
-- SCSS → CSS через `sass` (Dart Sass, npm), JS — мінімальний, без фреймворків.
-- Docker: PHP-FPM 8.3 + Nginx + MySQL 8.4 + одноразовий `assets` (Node 22, збірка SCSS). Entrypoint PHP виконується на кожному
-  старті — усе, що в нього додаємо (міграції, сидер), має бути ідемпотентним (ADR-005).
-- **Жодних нових бібліотек (composer/npm) без явного дозволу автора.**
+## Stack and hard constraints
+- PHP 8.1+, no frameworks (no Laravel, Symfony, Slim or their components).
+  Code uses **PHP 8.1 features only** (Composer `platform.php = 8.1.0`); Docker runs 8.3 (ADR-004).
+- Smarty is the only template engine. MySQL 8 through **PDO** (no ORM, no query builder).
+- Composer only for Smarty and PSR-4 autoloading. SCSS → CSS with `sass` (Dart Sass, npm).
+- Docker: PHP-FPM 8.3 + Nginx + MySQL 8.4 + one-off `assets` (Node 22, SCSS build). The PHP
+  entrypoint runs on every start — everything in it (migrations, seeding) must be idempotent (ADR-005).
+- **No new libraries (Composer/npm) without the author's explicit permission.**
 
-## Структура папок
-Шари за типом (ADR-002). Деталі — docs/ARCHITECTURE.md.
-- `public/` — document root: `index.php` (єдина точка входу), `assets/`.
+## Project structure
+Layered by type (ADR-002). Details in docs/ARCHITECTURE.md.
+- `public/` — document root: `index.php` (single entry point, routes and wiring — ADR-007), `assets/`,
+  `images/articles/` (article SVGs).
 - `src/Core/` — Router, Request, Response, View (Smarty), Database (PDO), NotFoundException.
-- `src/Controller/` — метод повертає `Response`; «не знайдено» → `throw new NotFoundException()`.
-  Маршрути й збирання залежностей — у `public/index.php` (ADR-007).
-  `src/Repository/` — **увесь SQL тільки тут**. Namespace `App\` → `src/`.
-- `templates/` — Smarty `.tpl`. `config/` — конфіг з env. `bin/` — CLI (migrate, seed).
-- `database/migrations/NNN_*.sql` — одна таблиця/зміна на файл, існуючі файли не редагуємо
-  (зміна схеми = новий файл); `database/seeds/` — `BlogSeeder` (`Database\Seeders\`) і дані.
-- `src/Entity/` — readonly-сутності з `fromRow()`; репозиторії повертають сутності, не масиви.
-  Дати — `DateTimeImmutable`, у шаблоні `->format()` (не `date_format`: він на `strftime`).
-- `src/Support/` — утиліти (`Slugger`, `Pagination`, `ViewedArticles`).
-- Динамічний `ORDER BY` — лише через enum `ArticleSort::orderBy()`, ніколи з вводу користувача. `public/images/articles/` — SVG статей.
-- `scss/` → `public/assets/css` (сервіс `assets`, ADR-012): `abstracts/` (змінні, mixins), `base/`
-  (тема, reset, типографіка), `layout/`, `components/` — один БЕМ-блок = один файл; `@use`, не `@import`.
-  Кольори — лише через CSS custom properties з `base/_theme.scss` (світла + темна тема).
-- `docker/` — оточення. `var/` — кеш Smarty (gitignored).
-- В URL — `slug`, не `id` (ADR-003).
+- `src/Controller/` — methods return `Response`; "not found" → `throw new NotFoundException()`.
+- `src/Repository/` — **all SQL lives here**. Dynamic `ORDER BY` only via enum `ArticleSort::orderBy()`.
+- `src/Entity/` — readonly entities with `fromRow()`; repositories return entities, not arrays.
+  Dates are `DateTimeImmutable`, formatted with `->format()` in templates (not `date_format`: it uses `strftime`).
+- `src/Support/` — helpers (`Slugger`, `Pagination`, `ViewedArticles`). Namespace `App\` → `src/`.
+- `templates/` — Smarty `.tpl`. `config/` — config from env. `bin/` — CLI (migrate, seed).
+- `database/migrations/NNN_*.sql` — one table/change per file; never edit applied files (schema
+  change = new file). `database/seeds/` — `BlogSeeder` (`Database\Seeders\`) and its data.
+- `scss/` → `public/assets/css` (ADR-012): `abstracts/`, `base/`, `layout/`, `components/` — one BEM
+  block per file; `@use`, not `@import`. Colors only via CSS custom properties in `base/_theme.scss`.
+- `docker/` — environment. `var/` — Smarty cache (gitignored). URLs use `slug`, not `id` (ADR-003).
 
-## Правила коду
-- `declare(strict_types=1);` у кожному PHP-файлі.
-- PSR-12, PSR-4 автозавантаження, повна типізація параметрів, повернень і властивостей.
-- SQL — тільки prepared statements з плейсхолдерами; ніякої конкатенації
-  користувацьких даних у SQL. Для `ORDER BY` — whitelist дозволених значень.
-- Шаблони: `escape_html` увімкнено глобально — `{$var}` екранується автоматично;
-  сирий HTML (`nofilter`) — лише свідомо і з коментарем чому. Сторінки — `{extends file="layout.tpl"}`.
-- Query-параметри і cookies — лише через `Request::query()` / `Request::cookie()`, не через
-  `$_GET` / `$_COOKIE`; заголовки відповіді (`Set-Cookie`) — через `Response`, не `header()`.
-- Невідомий маршрут або відсутній запис → HTTP 404 + шаблон 404.
-- Без «магії»: без `__get`/`__call`, без глобальних змінних, без service locator.
-  Залежності — через конструктор, збираються явно в одному місці.
-- Простота понад «архітектуру заради архітектури»: новий шар/клас — лише якщо
-  він прибирає реальне дублювання чи змішування відповідальностей.
-- Коментарі — тільки там, де «чому» неочевидне з коду.
+## Code rules
+- `declare(strict_types=1);` in every PHP file. PSR-12, PSR-4, full parameter/return/property types.
+- SQL: prepared statements with placeholders only; never concatenate user input into SQL.
+- Templates: `escape_html` is on globally — `{$var}` is escaped automatically; raw HTML (`nofilter`)
+  only deliberately, with a comment explaining why. Pages use `{extends file="layout.tpl"}`.
+- Query params and cookies only via `Request::query()` / `Request::cookie()`, never `$_GET` / `$_COOKIE`;
+  response headers (`Set-Cookie`) via `Response`, never `header()`.
+- Unknown route or missing record → HTTP 404 with the 404 template.
+- No magic: no `__get`/`__call`, no globals, no service locator. Constructor injection, wired explicitly.
+- Simplicity over architecture for its own sake: add a layer/class only if it removes real duplication
+  or mixed responsibilities. Comments only where the "why" is not obvious from the code.
+- All repository files (docs, README, comments, commits) in professional English. Site content
+  (UI text, seeded articles) stays Ukrainian.
 
-## Команди
-Сайт: http://localhost:8080 · MySQL з хоста: `127.0.0.1:3307` (blog / secret).
+## Commands
+Site: http://localhost:8080 · MySQL from the host: `127.0.0.1:3307` (blog / secret).
 ```bash
-docker compose up -d --build          # підняти все; entrypoint сам робить composer install
-docker compose logs -f php            # логи PHP / entrypoint / error_log
-APP_DEBUG=1 docker compose up -d php  # деталі помилок на сторінці 500
-docker compose exec php sh            # shell у контейнері PHP
+docker compose up -d --build                         # start everything (deps, migrations, seed, CSS)
+docker compose logs -f php                           # PHP / entrypoint / error_log output
+APP_DEBUG=1 docker compose up -d php                 # show error details on the 500 page
 docker compose exec php composer validate --strict
-docker compose down                   # зупинити (додати -v — стерти БД)
-docker compose exec php php bin/migrate.php           # нові міграції (також на старті)
-docker compose exec php php bin/migrate.php --fresh   # видалити всі таблиці й перестворити
-docker compose exec php php bin/seed.php              # перестворити демо-дані (80 статей)
+docker compose down                                  # stop (add -v to drop the database)
+docker compose exec php php bin/migrate.php          # apply new migrations (also runs on start)
+docker compose exec php php bin/migrate.php --fresh  # drop all tables and re-migrate
+docker compose exec php php bin/seed.php             # recreate demo data (80 articles)
 docker compose exec php php bin/seed.php --articles=300
-docker compose up assets                          # перезібрати CSS (scss/ → public/assets/css/app.css)
-docker compose run --rm assets npm run watch      # SCSS watch-режим під час розробки
+docker compose up assets                             # rebuild CSS
+docker compose run --rm assets npm run watch         # SCSS watch mode
 ```
 
-## Правила роботи з автором
-- **Архітектурні рішення приймає автор.** Ти пропонуєш 2–3 варіанти з плюсами
-  й мінусами та рекомендацією; після рішення — записуєш його в DECISIONS.md.
-- Рутину (шаблонний код, стилі, Docker, сидинг) робиш після погодження підходу.
-- **Один етап — один коміт.** Не переходь до наступного етапу без «ок» автора.
-- Не роби масових змін у файлах, яких не стосується поточний етап.
-- Коміти робить автор. `git push` — заборонено. Сам комітиш лише на прямий запит.
-- Пояснюй кожен крок так, щоб автор міг захистити його на інтерв'ю
-  (автор — Laravel-розробник: проводь паралелі з Laravel, де це допомагає).
-- Мова спілкування та docs — українська; код, ідентифікатори і коміти — англійською.
+## Working with the author
+- **The author makes architectural decisions.** Propose 2–3 options with pros, cons and a
+  recommendation; once decided, record it in DECISIONS.md.
+- Do routine work (boilerplate, styles, Docker, seeding) after the approach is agreed.
+- **One stage — one commit.** Do not start the next stage without the author's "ok".
+- Do not make sweeping changes to files unrelated to the current stage.
+- The author commits. `git push` is forbidden. Commit only when explicitly asked.
+- Explain every step so the author can defend it in an interview (the author is a Laravel
+  developer: draw parallels with Laravel where helpful).
+- Talk to the author in Ukrainian; write everything in the repository in English.
 
-## Після кожного етапу
-1. Онови статус у docs/PROGRESS.md.
-2. Допиши ADR у docs/DECISIONS.md (якщо були рішення).
-3. Допиши запис у docs/AI_USAGE.md: що зробив ІІ, що вирішив автор.
-4. Онови docs/ARCHITECTURE.md, якщо змінилась структура/схема.
-5. Запропонуй повідомлення коміту (Conventional Commits, англійською) — див. `/commit-msg`.
+## After every stage
+1. Update the status in docs/PROGRESS.md.
+2. Add ADRs to docs/DECISIONS.md (if decisions were made).
+3. Add an entry to docs/AI_USAGE.md: what the AI did, what the author decided.
+4. Update docs/ARCHITECTURE.md if the structure or schema changed.
+5. Suggest a commit message (Conventional Commits, English) — see `/commit-msg`.
 
-## Власні команди (.claude/commands/)
-- `/stage` — поточний етап, план кроків, файли, які зачепимо.
-- `/review` — рев'ю змін етапу: читабельність, безпека, відповідність ТЗ і CLAUDE.md.
-- `/commit-msg` — повідомлення коміту в стилі Conventional Commits.
-- `/explain` — пояснення останніх змін у форматі «питання на інтерв'ю».
+## Custom commands (.claude/commands/)
+- `/stage` — current stage, step plan, files to touch.
+- `/review` — review of the stage changes: readability, security, compliance with the task and CLAUDE.md.
+- `/commit-msg` — Conventional Commits message.
+- `/explain` — explain the latest changes as interview questions and answers.

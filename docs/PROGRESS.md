@@ -1,21 +1,21 @@
-# Прогрес
+# Progress
 
-Статуси: ✅ зроблено · 🔄 в процесі · ⏳ далі
+Status: ✅ done · 🔄 in progress · ⏳ next
 
-| #  | Етап                                                        | Статус |
+| #  | Stage                                                       | Status |
 |----|-------------------------------------------------------------|--------|
-| 0  | Організація роботи: CLAUDE.md, docs/, .claude/              | ✅ |
-| 1  | Ініціалізація: composer, Smarty, Docker                     | ✅ |
-| 2  | Схема БД і міграція (SQL) + конфіг і підключення до БД      | ✅ |
-| 3  | Роутер, контролери, базовий layout, 404                     | ✅ |
-| 4  | Сидер категорій і статей                                    | ✅ |
-| 5  | Головна сторінка                                            | ✅ |
-| 6  | Сторінка категорії: сортування + пагінація                  | ✅ |
-| 7  | Сторінка статті: перегляди + схожі статті                   | ✅ |
-| 8  | Стилі SCSS, адаптивність                                    | ✅ (чекає коміту) |
-| 9  | README, фінальне рев'ю, дрібні виправлення                  | ⏳ |
+| 0  | Workflow setup: CLAUDE.md, docs/, .claude/                  | ✅ |
+| 1  | Initialization: Composer, Smarty, Docker                    | ✅ |
+| 2  | DB schema and migrations (SQL) + config and DB connection   | ✅ |
+| 3  | Router, controllers, base layout, 404                       | ✅ |
+| 4  | Category and article seeder                                 | ✅ |
+| 5  | Home page                                                   | ✅ |
+| 6  | Category page: sorting + pagination                         | ✅ |
+| 7  | Article page: view counter + similar articles               | ✅ |
+| 8  | SCSS styles, responsive layout                              | ✅ |
+| 9  | English docs, final review, README                          | 🔄 |
 
-## Поточний стан
-- Етап 8 завершено: SCSS (Dart Sass, `@use`, БЕМ-файли), сервіс `assets` у compose, світла +
-  темна тема, mobile-first, cache busting. Перевірено скриншотами (375 / 768 / 1280 px, обидві теми). ADR-012.
-- Далі: етап 9 — README, фінальне рев'ю (`/review`), відповідь компанії про використання ІІ.
+## Current state
+- Stage 9 split into three commits: 9a — docs translated into English; 9b — fixes from the final
+  code review (author approves each finding); 9c — README, screenshots, clean-clone check.
+- Next: final code review of the whole project; findings are presented as a list for the author to decide on.
