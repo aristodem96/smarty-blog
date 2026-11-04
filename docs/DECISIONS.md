@@ -116,6 +116,9 @@ Decisions are made by the author; the AI assistant only proposes options.
     `APP_DEBUG=1`. Warnings and notices are converted to `ErrorException`.
   - `Request` (readonly) is built from superglobals once; `query()` returns strings only.
   - Dependencies are wired manually with `new` in `index.php`, no DI container.
+  - *Updated in stage 9:* each route is a closure that builds its controller only when the route
+    matches, and PDO is opened lazily on first use — unknown URLs return 404 without connecting to
+    MySQL (and still return 404 while the database is down).
   - Layout uses Smarty template inheritance (`{extends}` + `{block}`) with `escape_html` auto-escaping.
 - **Alternatives:** `match(true)` in `index.php` (routes mixed with bootstrap); controllers returning
   strings (simpler, but no control over status/headers); a reflection-based DI container (magic);
@@ -251,3 +254,24 @@ Decisions are made by the author; the AI assistant only proposes options.
 - **Rationale:** `docker compose up` stays a single command with no Node on the host; one file per BEM
   block — a style is found by the class name in the template; the dark theme is the author's choice
   and costs ~15 lines thanks to custom properties.
+
+---
+
+## ADR-013 · Hardening and polish after the final review
+- **Date:** 2026-11-04
+- **Decision** (all findings of the final review, applied at the author's request):
+  - PHP: `php.ini-production` is activated in the image (errors hidden from users, logged to stderr,
+    deprecations excluded from `error_reporting`); `docker/php/app.ini` adds `expose_php = Off`.
+  - Nginx: `server_tokens off`; `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` on every
+    response (`always`); `expires 30d` for `/assets/` and `/images/` (CSS is cache-busted with `?v=`).
+  - Lazy controller construction and DB connection (see ADR-007 update).
+  - `APP_ENV` (`development` by default): `production` disables Smarty's per-request template checks.
+  - Accessibility/SEO: a visually hidden `h2` keeps the heading outline on the category page;
+    `<meta name="description">` per page (category / article description, site default otherwise).
+  - `bin/migrate.php` tolerates `glob()` returning `false`.
+  - License: MIT (`LICENSE`, `composer.json`).
+- **Alternatives:** leaving the PHP image defaults (`display_errors=On`, version in `X-Powered-By`);
+  a Content-Security-Policy header (more value, but needs careful tuning — not required here);
+  keeping the eager wiring and documenting the 500-instead-of-404 behavior while MySQL is down.
+- **Rationale:** cheap fixes that remove information disclosure and make the deliverable closer to
+  production defaults without adding dependencies.

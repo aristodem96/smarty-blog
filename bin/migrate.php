@@ -28,7 +28,7 @@ $pdo->exec(
 
 $applied = $pdo->query('SELECT name FROM migrations')->fetchAll(PDO::FETCH_COLUMN);
 
-$files = glob(__DIR__ . '/../database/migrations/*.sql');
+$files = glob(__DIR__ . '/../database/migrations/*.sql') ?: [];
 sort($files);
 
 $insert = $pdo->prepare('INSERT INTO migrations (name) VALUES (:name)');

@@ -12,12 +12,18 @@ final class View
 
     /**
      * @param array<string, mixed> $globals  variables available in every template (e.g. asset version)
+     * @param bool $compileCheck  recompile templates when their source changes (off in production)
      */
-    public function __construct(string $templateDir, string $compileDir, array $globals = [])
-    {
+    public function __construct(
+        string $templateDir,
+        string $compileDir,
+        array $globals = [],
+        bool $compileCheck = true,
+    ) {
         $this->smarty = new Smarty();
         $this->smarty->setTemplateDir($templateDir);
         $this->smarty->setCompileDir($compileDir);
+        $this->smarty->setCompileCheck($compileCheck ? Smarty::COMPILECHECK_ON : Smarty::COMPILECHECK_OFF);
         // Every {$var} is HTML-escaped by default; raw output needs an explicit |nofilter.
         $this->smarty->setEscapeHtml(true);
         $this->smarty->assign($globals);

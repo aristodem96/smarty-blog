@@ -32,6 +32,11 @@ ul[class] {
   @include focus-ring;
 }
 
+// Content for screen readers only (e.g. a section heading that is obvious visually).
+.visually-hidden {
+  @include visually-hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

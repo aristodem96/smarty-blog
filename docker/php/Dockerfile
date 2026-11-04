@@ -4,6 +4,11 @@ FROM php:8.3-fpm-alpine
 RUN apk add --no-cache unzip \
     && docker-php-ext-install pdo_mysql
 
+# The image ships without an active php.ini (display_errors=On, logging off).
+# The production template hides errors from users and logs them to stderr; app.ini adds our overrides.
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY docker/php/app.ini "$PHP_INI_DIR/conf.d/zz-app.ini"
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 

@@ -30,7 +30,7 @@ smarty-blog/
 │   ├── layout/             #   container, header, footer, grid
 │   └── components/         #   one BEM block per file (article-card, pagination, …)
 ├── package.json            # sass + build / watch scripts
-├── docker/                 # PHP Dockerfile and entrypoint, Nginx config
+├── docker/                 # PHP Dockerfile, entrypoint and app.ini; Nginx config
 ├── var/                    # compiled Smarty templates (gitignored)
 └── docs/                   # task, architecture, decisions, progress, AI usage log
 ```
@@ -84,8 +84,8 @@ Migrations: `database/migrations/NNN_*.sql`, one table per file (ADR-006).
 ```
 HTTP request
   → Nginx (anything that is not a file in public/ goes to public/index.php)
-  → public/index.php        — bootstrap: autoload, config, error handler, View,
-                              controllers (via new), route registration
+  → public/index.php        — bootstrap: autoload, config, error handler, View, lazy PDO,
+                              routes as closures that build their controller on match
   → Request::fromGlobals()  — method, path, query, cookies (the only place reading superglobals)
   → Router::dispatch()      — GET/HEAD + path regex; {slug} → named argument
   → Controller              — validates query input, calls repositories, returns a Response

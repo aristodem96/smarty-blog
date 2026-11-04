@@ -55,6 +55,7 @@ Site: http://localhost:8080 · MySQL from the host: `127.0.0.1:3307` (blog / sec
 docker compose up -d --build                         # start everything (deps, migrations, seed, CSS)
 docker compose logs -f php                           # PHP / entrypoint / error_log output
 APP_DEBUG=1 docker compose up -d php                 # show error details on the 500 page
+APP_ENV=production docker compose up -d php          # no per-request Smarty template checks
 docker compose exec php composer validate --strict
 docker compose down                                  # stop (add -v to drop the database)
 docker compose exec php php bin/migrate.php          # apply new migrations (also runs on start)

@@ -6,6 +6,7 @@ services:
     volumes:
       - ./:/var/www/html
     environment:
+      APP_ENV: ${APP_ENV:-development}
       APP_DEBUG: ${APP_DEBUG:-0}
       DB_HOST: mysql
       DB_PORT: 3306

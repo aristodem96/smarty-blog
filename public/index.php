@@ -30,23 +30,31 @@ set_error_handler(static function (int $severity, string $message, string $file,
 
 // Cache busting: the CSS URL changes whenever the file is rebuilt.
 $css = __DIR__ . '/assets/css/app.css';
-$view = new View(__DIR__ . '/../templates', __DIR__ . '/../var/templates_c', [
-    'assetVersion' => is_file($css) ? (string) filemtime($css) : '0',
-]);
+$view = new View(
+    __DIR__ . '/../templates',
+    __DIR__ . '/../var/templates_c',
+    ['assetVersion' => is_file($css) ? (string) filemtime($css) : '0'],
+    $config['app']['env'] !== 'production',
+);
+
+// The connection is opened on first use, so unknown URLs get a 404 without touching MySQL.
+$pdo = null;
+$db = static function () use (&$pdo, $config): PDO {
+    return $pdo ??= Database::connect($config['db']);
+};
 
 try {
-    $pdo = Database::connect($config['db']);
-    $categoryRepository = new CategoryRepository($pdo);
-    $articleRepository = new ArticleRepository($pdo);
-
-    $home = new HomeController($view, $categoryRepository);
-    $category = new CategoryController($view, $categoryRepository, $articleRepository);
-    $article = new ArticleController($view, $articleRepository, $categoryRepository);
-
+    // Controllers are built only for the matched route; {slug} arrives as the named argument $slug.
     $router = new Router();
-    $router->get('/', [$home, 'index']);
-    $router->get('/category/{slug}', [$category, 'show']);
-    $router->get('/article/{slug}', [$article, 'show']);
+    $router->get('/', static fn (Request $request): Response =>
+        (new HomeController($view, new CategoryRepository($db())))
+            ->index($request));
+    $router->get('/category/{slug}', static fn (Request $request, string $slug): Response =>
+        (new CategoryController($view, new CategoryRepository($db()), new ArticleRepository($db())))
+            ->show($request, $slug));
+    $router->get('/article/{slug}', static fn (Request $request, string $slug): Response =>
+        (new ArticleController($view, new ArticleRepository($db()), new CategoryRepository($db())))
+            ->show($request, $slug));
 
     $response = $router->dispatch(Request::fromGlobals());
 } catch (NotFoundException) {

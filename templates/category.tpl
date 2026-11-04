@@ -2,6 +2,8 @@
 
 {block name="title"}{$category->name} — Smarty Blog{/block}
 
+{block name="description"}{$category->description|default:$category->name|truncate:160:'…'}{/block}
+
 {block name="content"}
     <header class="page-header">
         <h1 class="page-title">{$category->name}</h1>
@@ -22,6 +24,9 @@
                 {/if}
             {/foreach}
         </nav>
+
+        {* Keeps the heading outline h1 → h2 → h3 (cards) for screen readers. *}
+        <h2 class="visually-hidden">Статті</h2>
 
         <div class="article-grid">
             {foreach $articles as $article}

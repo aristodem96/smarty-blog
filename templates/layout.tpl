@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>{block name="title"}Smarty Blog{/block}</title>
+    <meta name="description" content="{block name="description"}Блог про веб-розробку: PHP, JavaScript, бази даних, DevOps, верстка і безпека.{/block}">
     {* ?v= changes whenever the CSS is rebuilt, so browsers never keep a stale stylesheet. *}
     <link rel="stylesheet" href="/assets/css/app.css?v={$assetVersion}">
 </head>

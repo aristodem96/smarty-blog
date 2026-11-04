@@ -2,6 +2,8 @@
 
 {block name="title"}{$article->title} — Smarty Blog{/block}
 
+{block name="description"}{$article->description|truncate:160:'…'}{/block}
+
 {block name="content"}
     <article class="article">
         <header class="article__header">

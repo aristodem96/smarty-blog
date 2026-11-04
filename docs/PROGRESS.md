@@ -16,6 +16,7 @@ Status: ✅ done · 🔄 in progress · ⏳ next
 | 9  | English docs, final review, README                          | 🔄 |
 
 ## Current state
-- Stage 9 split into three commits: 9a — docs translated into English; 9b — fixes from the final
-  code review (author approves each finding); 9c — README, screenshots, clean-clone check.
-- Next: final code review of the whole project; findings are presented as a list for the author to decide on.
+- Stage 9 split into three commits: 9a — docs translated into English (done); 9b — fixes from the
+  final code review (done, ADR-013); 9c — README, screenshots, clean-clone check.
+- Next: 9c — README.md, screenshots in docs/screenshots/, AI usage statement for the company,
+  clean `git clone` + `docker compose up` check on separate ports.
