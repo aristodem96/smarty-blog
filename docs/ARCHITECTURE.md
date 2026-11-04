@@ -9,7 +9,8 @@ smarty-blog/
 │   ├── index.php           # front controller: єдина точка входу всіх HTTP-запитів
 │   └── assets/             # скомпільований CSS, зображення статей
 ├── src/                    # PHP-код, namespace App\ (PSR-4)
-│   ├── Core/               # інфраструктура: Router, Database (PDO), View (Smarty)
+│   ├── Core/               # інфраструктура: Router, Request, Response, View (Smarty),
+│   │                       #   Database (PDO), NotFoundException
 │   ├── Controller/         # HomeController, CategoryController, ArticleController
 │   └── Repository/         # CategoryRepository, ArticleRepository — увесь SQL тут
 ├── templates/              # Smarty-шаблони (.tpl): layout, сторінки, partials/
@@ -73,12 +74,18 @@ Engine InnoDB, charset `utf8mb4`, collation `utf8mb4_0900_ai_ci`.
 ```
 HTTP-запит
   → Nginx (усе, що не є файлом у public/, віддає на public/index.php)
-  → public/index.php        — bootstrap: autoload, конфіг, PDO, Smarty
-  → Router                  — зіставляє метод + шлях із маршрутом
-  → Controller              — читає параметри запиту, валідує їх
+  → public/index.php        — bootstrap: autoload, конфіг, error handler, View,
+                              контролери (через new), реєстрація маршрутів
+  → Request::fromGlobals()  — метод, шлях, query (єдине місце читання $_SERVER/$_GET)
+  → Router::dispatch()      — GET/HEAD + regex шляху; {slug} → іменований аргумент
+  → Controller              — валідує query, викликає репозиторій, повертає Response
   → Repository              — SQL через PDO (prepared statements)
-  → Smarty-шаблон           — рендер HTML з екрануванням
-  → HTTP-відповідь (200 / 404)
+  → View::render()          — Smarty-шаблон з автоекрануванням
+  → Response::send()        — статус, заголовки, тіло
+
+Помилки (ловить index.php):
+  NotFoundException  → Response 404 (errors/404.tpl)
+  інший Throwable    → error_log + Response 500 (errors/500.tpl; деталі лише при APP_DEBUG=1)
 ```
 
 ## 4. Маршрути

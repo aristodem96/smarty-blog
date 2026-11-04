@@ -2,29 +2,50 @@
 
 declare(strict_types=1);
 
-// Temporary smoke test for stage 1: checks Smarty rendering and the MySQL connection.
-// Replaced by the real bootstrap (config, router, controllers) in stage 3.
+// Front controller: every non-static request ends up here (see docker/nginx/default.conf).
 
-use App\Core\Database;
-use Smarty\Smarty;
+use App\Controller\ArticleController;
+use App\Controller\CategoryController;
+use App\Controller\HomeController;
+use App\Core\NotFoundException;
+use App\Core\Request;
+use App\Core\Response;
+use App\Core\Router;
+use App\Core\View;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $config = require __DIR__ . '/../config/config.php';
 
-$smarty = new Smarty();
-$smarty->setTemplateDir(__DIR__ . '/../templates');
-$smarty->setCompileDir(__DIR__ . '/../var/templates_c');
-$smarty->setCacheDir(__DIR__ . '/../var/cache');
-$smarty->setEscapeHtml(true);
+// Turn warnings and notices into exceptions so they are handled like any other error.
+set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+    if ((error_reporting() & $severity) === 0) {
+        return false;
+    }
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
+$view = new View(__DIR__ . '/../templates', __DIR__ . '/../var/templates_c');
 
 try {
-    $pdo = Database::connect($config['db']);
-    $dbStatus = 'connected, MySQL ' . $pdo->query('SELECT VERSION()')->fetchColumn();
-} catch (PDOException $e) {
-    $dbStatus = 'connection failed: ' . $e->getMessage();
+    $home = new HomeController($view);
+    $category = new CategoryController($view);
+    $article = new ArticleController($view);
+
+    $router = new Router();
+    $router->get('/', [$home, 'index']);
+    $router->get('/category/{slug}', [$category, 'show']);
+    $router->get('/article/{slug}', [$article, 'show']);
+
+    $response = $router->dispatch(Request::fromGlobals());
+} catch (NotFoundException) {
+    $response = new Response($view->render('errors/404.tpl'), 404);
+} catch (Throwable $e) {
+    error_log((string) $e);
+    $response = new Response(
+        $view->render('errors/500.tpl', ['error' => $config['app']['debug'] ? (string) $e : null]),
+        500,
+    );
 }
 
-$smarty->assign('phpVersion', PHP_VERSION);
-$smarty->assign('dbStatus', $dbStatus);
-$smarty->display('hello.tpl');
+$response->send();

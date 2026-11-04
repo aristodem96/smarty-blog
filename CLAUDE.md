@@ -24,7 +24,9 @@
 ## Структура папок
 Шари за типом (ADR-002). Деталі — docs/ARCHITECTURE.md.
 - `public/` — document root: `index.php` (єдина точка входу), `assets/`.
-- `src/Core/` — Router, Database (PDO), View (Smarty). `src/Controller/` — обробка запитів.
+- `src/Core/` — Router, Request, Response, View (Smarty), Database (PDO), NotFoundException.
+- `src/Controller/` — метод повертає `Response`; «не знайдено» → `throw new NotFoundException()`.
+  Маршрути й збирання залежностей — у `public/index.php` (ADR-007).
   `src/Repository/` — **увесь SQL тільки тут**. Namespace `App\` → `src/`.
 - `templates/` — Smarty `.tpl`. `config/` — конфіг з env. `bin/` — CLI (migrate, seed).
 - `database/migrations/NNN_*.sql` — одна таблиця/зміна на файл, існуючі файли не редагуємо
@@ -37,8 +39,9 @@
 - PSR-12, PSR-4 автозавантаження, повна типізація параметрів, повернень і властивостей.
 - SQL — тільки prepared statements з плейсхолдерами; ніякої конкатенації
   користувацьких даних у SQL. Для `ORDER BY` — whitelist дозволених значень.
-- Шаблони: увесь вивід екранується (`escape_html` у Smarty або `|escape`);
-  сирий HTML — лише свідомо і з коментарем чому.
+- Шаблони: `escape_html` увімкнено глобально — `{$var}` екранується автоматично;
+  сирий HTML (`nofilter`) — лише свідомо і з коментарем чому. Сторінки — `{extends file="layout.tpl"}`.
+- Query-параметри — лише через `Request::query()`, не через `$_GET`.
 - Невідомий маршрут або відсутній запис → HTTP 404 + шаблон 404.
 - Без «магії»: без `__get`/`__call`, без глобальних змінних, без service locator.
   Залежності — через конструктор, збираються явно в одному місці.
@@ -50,7 +53,8 @@
 Сайт: http://localhost:8080 · MySQL з хоста: `127.0.0.1:3307` (blog / secret).
 ```bash
 docker compose up -d --build          # підняти все; entrypoint сам робить composer install
-docker compose logs -f php            # логи PHP / entrypoint
+docker compose logs -f php            # логи PHP / entrypoint / error_log
+APP_DEBUG=1 docker compose up -d php  # деталі помилок на сторінці 500
 docker compose exec php sh            # shell у контейнері PHP
 docker compose exec php composer validate --strict
 docker compose down                   # зупинити (додати -v — стерти БД)
