@@ -3,11 +3,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title>{block name="title"}Smarty Blog{/block}</title>
+    {* ?v= changes whenever the CSS is rebuilt, so browsers never keep a stale stylesheet. *}
+    <link rel="stylesheet" href="/assets/css/app.css?v={$assetVersion}">
 </head>
 <body>
     <header class="site-header">
-        <a href="/" class="site-header__logo">Smarty Blog</a>
+        <div class="container site-header__inner">
+            <a href="/" class="site-header__logo">Smarty Blog</a>
+        </div>
     </header>
 
     <main class="container">
@@ -15,7 +20,9 @@
     </main>
 
     <footer class="site-footer">
-        <p>Smarty Blog — тестове завдання AbeloHost</p>
+        <div class="container">
+            <p>Smarty Blog — тестове завдання AbeloHost</p>
+        </div>
     </footer>
 </body>
 </html>

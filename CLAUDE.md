@@ -16,8 +16,8 @@
 - Smarty — єдиний шаблонізатор.
 - MySQL 8 через **PDO** (без ORM, без query builder-ів).
 - Composer — лише для Smarty та автозавантаження PSR-4.
-- SCSS → CSS через `sass` (npm), JS — мінімальний, без фреймворків.
-- Docker: PHP-FPM 8.3 + Nginx + MySQL 8.4. Entrypoint PHP виконується на кожному
+- SCSS → CSS через `sass` (Dart Sass, npm), JS — мінімальний, без фреймворків.
+- Docker: PHP-FPM 8.3 + Nginx + MySQL 8.4 + одноразовий `assets` (Node 22, збірка SCSS). Entrypoint PHP виконується на кожному
   старті — усе, що в нього додаємо (міграції, сидер), має бути ідемпотентним (ADR-005).
 - **Жодних нових бібліотек (composer/npm) без явного дозволу автора.**
 
@@ -35,7 +35,10 @@
   Дати — `DateTimeImmutable`, у шаблоні `->format()` (не `date_format`: він на `strftime`).
 - `src/Support/` — утиліти (`Slugger`, `Pagination`, `ViewedArticles`).
 - Динамічний `ORDER BY` — лише через enum `ArticleSort::orderBy()`, ніколи з вводу користувача. `public/images/articles/` — SVG статей.
-- `scss/` → `public/assets/css`. `docker/` — оточення. `var/` — кеш Smarty (gitignored).
+- `scss/` → `public/assets/css` (сервіс `assets`, ADR-012): `abstracts/` (змінні, mixins), `base/`
+  (тема, reset, типографіка), `layout/`, `components/` — один БЕМ-блок = один файл; `@use`, не `@import`.
+  Кольори — лише через CSS custom properties з `base/_theme.scss` (світла + темна тема).
+- `docker/` — оточення. `var/` — кеш Smarty (gitignored).
 - В URL — `slug`, не `id` (ADR-003).
 
 ## Правила коду
@@ -67,8 +70,8 @@ docker compose exec php php bin/migrate.php           # нові міграці�
 docker compose exec php php bin/migrate.php --fresh   # видалити всі таблиці й перестворити
 docker compose exec php php bin/seed.php              # перестворити демо-дані (80 статей)
 docker compose exec php php bin/seed.php --articles=300
-# далі по етапах:
-npm run build:css                     # SCSS → CSS (етап 8)
+docker compose up assets                          # перезібрати CSS (scss/ → public/assets/css/app.css)
+docker compose run --rm assets npm run watch      # SCSS watch-режим під час розробки
 ```
 
 ## Правила роботи з автором

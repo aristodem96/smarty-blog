@@ -3,7 +3,7 @@
     <nav class="pagination" aria-label="Сторінки">
         {if $pagination->hasPrevious()}
             <a class="pagination__link" rel="prev"
-               href="{$baseUrl}{if $pagination->page > 2}&amp;page={$pagination->page - 1}{/if}">← Назад</a>
+               href="{$baseUrl}{if $pagination->page > 2}&amp;page={$pagination->page - 1}{/if}">←<span class="pagination__label">&nbsp;Назад</span></a>
         {/if}
 
         {foreach $pagination->links() as $page}
@@ -17,7 +17,7 @@
         {/foreach}
 
         {if $pagination->hasNext()}
-            <a class="pagination__link" rel="next" href="{$baseUrl}&amp;page={$pagination->page + 1}">Далі →</a>
+            <a class="pagination__link" rel="next" href="{$baseUrl}&amp;page={$pagination->page + 1}"><span class="pagination__label">Далі&nbsp;</span>→</a>
         {/if}
     </nav>
 {/if}

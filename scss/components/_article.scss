@@ -1,0 +1,67 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Single article page, including the "similar articles" block.
+
+.article {
+  max-width: $content-width;
+  margin-inline: auto;
+
+  &__categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-xs;
+    margin-bottom: $space-md;
+  }
+
+  &__title {
+    font-size: clamp(1.75rem, 1.25rem + 2.5vw, 2.75rem);
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-xs $space-md;
+    margin-top: $space-sm;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  &__lead {
+    margin-top: $space-lg;
+    font-size: 1.1875rem;
+    color: var(--color-muted);
+  }
+
+  &__image {
+    width: 100%;
+    margin-block: $space-lg;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: $radius-md;
+  }
+
+  &__content {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+
+    p + p {
+      margin-top: $space-md;
+    }
+  }
+}
+
+.similar {
+  margin-top: $space-xl;
+  padding-top: $space-xl;
+  border-top: 1px solid var(--color-border);
+
+  @include respond-to(lg) {
+    margin-top: 4rem;
+  }
+
+  &__title {
+    margin-bottom: $space-md;
+    font-size: 1.5rem;
+  }
+}

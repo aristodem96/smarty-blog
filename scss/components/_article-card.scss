@@ -1,0 +1,76 @@
+@use '../abstracts/variables' as *;
+
+.article-card {
+  // Positioning context for the stretched title link below.
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  box-shadow: var(--shadow-card);
+  transition: transform $transition, box-shadow $transition;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  &__image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+
+    &--placeholder {
+      display: block;
+      background: var(--color-placeholder);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: $space-xs;
+    padding: $space-md $space-md $space-lg;
+  }
+
+  &__title {
+    font-size: 1.125rem;
+
+    a {
+      color: var(--color-text);
+      text-decoration: none;
+
+      // The whole card is clickable through one real link (one tab stop, one screen-reader link).
+      &::after {
+        position: absolute;
+        inset: 0;
+        content: '';
+      }
+    }
+  }
+
+  &:hover &__title a {
+    color: var(--color-primary);
+  }
+
+  &__description {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--color-muted);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-xs $space-md;
+    margin-top: auto;
+    padding-top: $space-xs;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+}

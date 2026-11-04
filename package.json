@@ -1,0 +1,12 @@
+{
+  "name": "smarty-blog-assets",
+  "private": true,
+  "description": "SCSS build for smarty-blog",
+  "scripts": {
+    "build": "sass scss/app.scss public/assets/css/app.css --style=compressed --no-source-map",
+    "watch": "sass scss/app.scss public/assets/css/app.css --watch --poll"
+  },
+  "devDependencies": {
+    "sass": "^1.107.1"
+  }
+}

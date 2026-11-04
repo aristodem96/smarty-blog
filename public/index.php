@@ -28,7 +28,11 @@ set_error_handler(static function (int $severity, string $message, string $file,
     throw new ErrorException($message, 0, $severity, $file, $line);
 });
 
-$view = new View(__DIR__ . '/../templates', __DIR__ . '/../var/templates_c');
+// Cache busting: the CSS URL changes whenever the file is rebuilt.
+$css = __DIR__ . '/assets/css/app.css';
+$view = new View(__DIR__ . '/../templates', __DIR__ . '/../var/templates_c', [
+    'assetVersion' => is_file($css) ? (string) filemtime($css) : '0',
+]);
 
 try {
     $pdo = Database::connect($config['db']);

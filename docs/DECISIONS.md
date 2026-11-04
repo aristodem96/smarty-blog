@@ -226,3 +226,28 @@
   «24 години» відлічується від останнього запису cookie, а не окремо для кожної статті;
   захист легко обійти очищенням cookie (для блогу прийнятно). `Response` тримає заголовки
   як `name => value`, тож два `Set-Cookie` в одній відповіді не підтримуються.
+
+---
+
+## ADR-012 · Стилі: SCSS у сервісі `assets`, БЕМ-файли, mobile-first, світла + темна тема
+- **Дата:** 2026-11-04
+- **Рішення:**
+  - Сервіс `assets` (`node:22-alpine`) у compose: `npm ci && npm run build` → `public/assets/css/app.css`
+    (compressed, без source map) і завершується; `nginx` стартує після
+    `service_completed_successfully`. Watch: `docker compose run --rm assets npm run watch` (`--poll`).
+  - Компілятор — `sass` (Dart Sass, єдина npm-залежність); модулі через `@use`.
+  - Структура: `abstracts/` (змінні, `respond-to()`, `visually-hidden`, `focus-ring`), `base/`
+    (тема, reset, типографіка), `layout/`, `components/` — один БЕМ-блок на файл.
+  - Кольори — CSS custom properties; темна тема — `@media (prefers-color-scheme: dark)` перевизначає
+    ті самі змінні; `color-scheme: light dark`. SCSS-змінні — для значень часу компіляції.
+  - Mobile-first: `min-width` брейкпоінти; сітка `repeat(auto-fill, minmax(min(100%, 260px), 1fr))`
+    без медіазапитів. Системні шрифти. Уся картка клікабельна через `::after` заголовка.
+  - Cache busting: `app.css?v=<filemtime>` (глобальна змінна `View`).
+  - Доступність: `:focus-visible`, `prefers-reduced-motion`, текст «Назад/Далі» на телефоні
+    прихований лише візуально.
+- **Альтернативи:** multi-stage Dockerfile (перезбірка образу на кожну зміну стилів при bind mount);
+  npm на хості (рецензенту потрібен Node); комітити CSS (згенерований файл у git);
+  повний 7-1 (порожні папки) чи один файл; лише світла тема.
+- **Чому так:** `docker compose up` лишається однією командою без Node на хості; файл на БЕМ-блок —
+  стиль знаходиться за назвою класу з шаблону; темна тема — вибір автора, коштує ~15 рядків завдяки
+  custom properties.

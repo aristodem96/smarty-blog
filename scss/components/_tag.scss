@@ -1,0 +1,17 @@
+@use '../abstracts/variables' as *;
+
+.tag {
+  display: inline-block;
+  padding: 0.25rem $space-sm;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  background: var(--color-tag-bg);
+  border-radius: $radius-pill;
+
+  &:hover {
+    color: var(--color-on-primary);
+    background: var(--color-primary);
+  }
+}

@@ -1,0 +1,15 @@
+@use '../abstracts/variables' as *;
+
+.page-header {
+  margin-bottom: $space-lg;
+
+  .page-title {
+    margin-bottom: $space-xs;
+  }
+
+  &__description {
+    max-width: 65ch;
+    font-size: 1.0625rem;
+    color: var(--color-muted);
+  }
+}

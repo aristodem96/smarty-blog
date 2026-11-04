@@ -1,0 +1,19 @@
+@use '../abstracts/variables' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-xs;
+  padding: $space-sm $space-lg;
+  font-weight: 600;
+  color: var(--color-on-primary);
+  text-decoration: none;
+  background: var(--color-primary);
+  border-radius: $radius-pill;
+  transition: background-color $transition;
+
+  &:hover {
+    color: var(--color-on-primary);
+    background: var(--color-primary-hover);
+  }
+}

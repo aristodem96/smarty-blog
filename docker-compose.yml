@@ -25,7 +25,19 @@ services:
       - ./public:/var/www/html/public:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - php
+      php:
+        condition: service_started
+      assets:
+        condition: service_completed_successfully
+
+  # One-off job: compiles scss/ into public/assets/css/app.css and exits.
+  # Watch mode while developing: docker compose run --rm assets npm run watch
+  assets:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "npm ci --no-audit --no-fund && npm run build"
 
   mysql:
     image: mysql:8.4

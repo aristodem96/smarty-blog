@@ -1,0 +1,38 @@
+@use '../abstracts/variables' as *;
+
+.sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $space-xs;
+  margin-bottom: $space-lg;
+
+  &__label {
+    margin-right: $space-xs;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  &__option {
+    padding: 0.375rem $space-md;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-pill;
+    transition: border-color $transition, color $transition;
+
+    &:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    &--active,
+    &--active:hover {
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+  }
+}

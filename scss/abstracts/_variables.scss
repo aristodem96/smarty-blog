@@ -1,0 +1,26 @@
+// Compile-time values. Colors live in CSS custom properties (base/_theme.scss)
+// because they change at runtime with the color scheme; these do not.
+
+$breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 1024px,
+);
+
+$container-width: 1140px;
+$content-width: 760px;
+$card-min-width: 260px;
+
+$space-xs: 0.5rem;
+$space-sm: 0.75rem;
+$space-md: 1rem;
+$space-lg: 1.5rem;
+$space-xl: 2.5rem;
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-pill: 999px;
+
+$font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+$transition: 150ms ease;

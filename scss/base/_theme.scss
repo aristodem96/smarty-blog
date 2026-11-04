@@ -1,0 +1,35 @@
+// Color tokens. The dark scheme overrides the same properties, so components never change.
+
+:root {
+  color-scheme: light dark;
+
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-text: #1f2330;
+  --color-muted: #5b6275;
+  --color-border: #e2e5ee;
+  --color-primary: #4338ca;
+  --color-primary-hover: #3730a3;
+  --color-on-primary: #ffffff;
+  --color-tag-bg: #eef0ff;
+  --color-placeholder: linear-gradient(135deg, #c7d2fe, #e0e7ff);
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 6%), 0 4px 12px rgb(16 24 40 / 6%);
+  --shadow-card-hover: 0 4px 8px rgb(16 24 40 / 8%), 0 12px 24px rgb(16 24 40 / 10%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f1117;
+    --color-surface: #181b24;
+    --color-text: #e6e8ef;
+    --color-muted: #a0a7ba;
+    --color-border: #2a2f3d;
+    --color-primary: #8b93ff;
+    --color-primary-hover: #a9aeff;
+    --color-on-primary: #0f1117;
+    --color-tag-bg: #262b45;
+    --color-placeholder: linear-gradient(135deg, #272c4a, #1d2136);
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-card-hover: 0 8px 24px rgb(0 0 0 / 50%);
+  }
+}

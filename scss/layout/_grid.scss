@@ -1,0 +1,9 @@
+@use '../abstracts/variables' as *;
+
+// 1, 2 or 3 columns depending on the available width — no media queries needed.
+// min(100%, ...) keeps a single column from overflowing on screens narrower than the card minimum.
+.article-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, $card-min-width), 1fr));
+  gap: $space-lg;
+}

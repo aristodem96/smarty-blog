@@ -1,0 +1,22 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.container {
+  width: 100%;
+  max-width: $container-width;
+  margin-inline: auto;
+  padding-inline: $space-md;
+
+  @include respond-to(md) {
+    padding-inline: $space-lg;
+  }
+}
+
+main.container {
+  flex: 1;
+  padding-block: $space-lg $space-xl;
+
+  @include respond-to(md) {
+    padding-block: $space-xl;
+  }
+}

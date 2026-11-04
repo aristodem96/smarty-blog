@@ -23,7 +23,13 @@ smarty-blog/
 │   ├── migrations/         # SQL-файли схеми
 │   └── seeds/              # BlogSeeder (namespace Database\Seeders), data/blog.php — вихідні дані
 ├── bin/                    # CLI-скрипти: migrate.php, seed.php
-├── scss/                   # вихідні стилі → компілюються в public/assets/css
+├── scss/                   # вихідні стилі → public/assets/css/app.css (сервіс assets)
+│   ├── app.scss            #   точка входу: лише @use
+│   ├── abstracts/          #   змінні, mixins (respond-to, visually-hidden, focus-ring)
+│   ├── base/               #   тема (custom properties, light/dark), reset, типографіка
+│   ├── layout/             #   container, header, footer, grid
+│   └── components/         #   один БЕМ-блок = один файл (article-card, pagination, …)
+├── package.json            # sass + скрипти build / watch
 ├── docker/                 # Dockerfile PHP, конфіг Nginx
 ├── var/                    # скомпільовані шаблони Smarty, кеш (у .gitignore)
 └── docs/                   # ТЗ, архітектура, рішення, прогрес, журнал ІІ

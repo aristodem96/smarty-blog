@@ -10,13 +10,17 @@ final class View
 {
     private Smarty $smarty;
 
-    public function __construct(string $templateDir, string $compileDir)
+    /**
+     * @param array<string, mixed> $globals  variables available in every template (e.g. asset version)
+     */
+    public function __construct(string $templateDir, string $compileDir, array $globals = [])
     {
         $this->smarty = new Smarty();
         $this->smarty->setTemplateDir($templateDir);
         $this->smarty->setCompileDir($compileDir);
         // Every {$var} is HTML-escaped by default; raw output needs an explicit |nofilter.
         $this->smarty->setEscapeHtml(true);
+        $this->smarty->assign($globals);
     }
 
     /**

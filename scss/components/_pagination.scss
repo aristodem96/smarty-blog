@@ -1,0 +1,59 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-xs;
+  margin-top: $space-xl;
+
+  &__link,
+  &__gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding-inline: $space-sm;
+    font-weight: 600;
+  }
+
+  &__link {
+    color: var(--color-text);
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-sm;
+    transition: border-color $transition, color $transition;
+
+    &:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    &--current,
+    &--current:hover {
+      color: var(--color-on-primary);
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+  }
+
+  &__gap {
+    color: var(--color-muted);
+  }
+
+  // "Назад" / "Далі" words: only arrows on phones so the links fit on one line.
+  &__label {
+    @include visually-hidden;
+
+    @include respond-to(sm) {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+    }
+  }
+}
